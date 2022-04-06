@@ -2,6 +2,7 @@ package org.littlered.dataservices.repository.eventManager.interfaces;
 
 import org.littlered.dataservices.entity.eventManager.EmBookings;
 import org.littlered.dataservices.entity.eventManager.EmEvents;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -16,12 +17,11 @@ import java.util.List;
 @Repository
 public interface EventsRepositoryInterface extends PagingAndSortingRepository<EmEvents, Long> {
 
-	@Query(value = "SELECT * from " + "wp_tuiny5_em_events WHERE YEAR(event_start_date) = ?1 and event_slug not like 'verify%badge%'", nativeQuery = true)
-	List<EmEvents> findByYear(Long year);
+	@Query(value = "SELECT e from EmEvents e WHERE function('YEAR', e.eventStartDate) = ?1 and e.eventSlug not like 'verify%badge%'")
+	List<EmEvents> findByYear(Integer year);
 
-	@Query(value = "SELECT * from wp_tuiny5_em_events WHERE YEAR(event_start_date) = ?1 and event_slug not like 'verify%badge%' " +
-			"LIMIT ?2 OFFSET ?3", nativeQuery = true)
-	List<EmEvents> findByYearPaginated(Long year, Long length, Long offset);
+	@Query(value = "SELECT e from EmEvents e WHERE function('YEAR', e.eventStartDate) = ?1 and e.eventSlug not like 'verify%badge%'")
+	List<EmEvents> findByYearPaginated(Integer year, Pageable limit);
 
 	@Query(value = "SELECT b FROM EmBookings b WHERE b.eventId.eventStartDate = ?2 " +
 			"AND b.eventId.eventStartTime <= ?3 AND b.eventId.eventEndTime > ?3 and b.user.id = ?1 and b.bookingStatus = 1")
@@ -33,8 +33,8 @@ public interface EventsRepositoryInterface extends PagingAndSortingRepository<Em
 	@Query(value = "SELECT c.eventId from org.littlered.dataservices.entity.wordpress.BbcEventCategories c where c.slug = ?2 and FUNCTION('YEAR', c.eventId.eventStartDate) = ?1")
 	List<EmEvents> findByCategoryAndYear(Integer year, String category);
 
-	@Query(value = "SELECT count(*) from wp_tuiny5_em_events where YEAR(event_start_date) = ?1 and event_slug not like 'verify%badge%'", nativeQuery = true)
-	Long getNumberOfEventsByYear(Long year);
+	@Query(value = "SELECT count(e) from EmEvents e where function('YEAR', e.eventStartDate) = ?1 and e.eventSlug not like 'verify%badge%'")
+	Long getNumberOfEventsByYear(Integer year);
 
 	@Query(value = "SELECT DISTINCT b.eventId from EmBookings b " +
 			" where (b.eventId.lastUpdated > FUNCTION('from_unixtime', ?1)  " +

@@ -48,7 +48,7 @@ public class EventsService {
 
 	public Iterable<org.littlered.dataservices.entity.eventManager.EmEvents> findAll() throws Exception {
 		String year = getFilterYear();
-		return eventsRepository.findByYear(Long.parseLong(year));
+		return eventsRepository.findByYear(Integer.parseInt(year));
 	}
 
 	public Iterable<EmEvents> findAllPublic() throws Exception {
@@ -62,20 +62,20 @@ public class EventsService {
 	}
 
 	public Iterable<org.littlered.dataservices.entity.eventManager.EmEvents> findAllForYear(Long year) throws Exception {
-		return eventsRepository.findByYear(year);
+		return eventsRepository.findByYear(year.intValue());
 	}
 
 	public Long getCount() throws Exception {
-		return eventsRepository.getNumberOfEventsByYear(Long.parseLong(getFilterYear()));
+		return eventsRepository.getNumberOfEventsByYear(Integer.parseInt(getFilterYear()));
 	}
 
 	public Long getCountForYear(Long year) throws Exception {
-		return eventsRepository.getNumberOfEventsByYear(year);
+		return eventsRepository.getNumberOfEventsByYear(year.intValue());
 	}
 
 	public Iterable<org.littlered.dataservices.entity.eventManager.EmEvents> findAllPaginated(Long length, Long offset) throws Exception {
 		String year = getFilterYear();
-		return eventsRepository.findByYearPaginated(Long.parseLong(year), length, offset);
+		return eventsRepository.findByYearPaginated(Integer.parseInt(year), new PageRequest(length.intValue(), offset.intValue()));
 	}
 
 	public Iterable<EmEvents> findAllPublicPaginated(Long length, Long offset) throws Exception {
@@ -84,7 +84,7 @@ public class EventsService {
 	}
 
 	public Iterable<org.littlered.dataservices.entity.eventManager.EmEvents> findAllForYearPaginated(Long year, Long length, Long offset) throws Exception {
-		return eventsRepository.findByYearPaginated(year, length, offset);
+		return eventsRepository.findByYearPaginated(year.intValue(), new PageRequest(length.intValue(), offset.intValue()));
 	}
 
 	public Iterable<org.littlered.dataservices.entity.eventManager.EmEvents> findAllForCategory(String category) throws Exception {
