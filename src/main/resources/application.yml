@@ -1,0 +1,6 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.littlered.dataservices.repository.configuration.CustomPhysicalNamingStrategy

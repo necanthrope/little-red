@@ -1,0 +1,2558 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "REST API for Big Bad Con",
+    "version": "1.0",
+    "title": "Big Bad Con data service REST API",
+    "termsOfService": "Terms of service",
+    "contact": {
+      "name": "Jeremy Tidwell",
+      "url": "https://www.bigbadcon.com/",
+      "email": "necanthrope@gmail.com"
+    },
+    "license": {
+      "name": "Apache License Version 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "host": "localhost:8091",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "events-for-year-controller",
+      "description": "Operations pertaining to events for previous years."
+    },
+    {
+      "name": "events-controller",
+      "description": "Operations pertaining to events for the current year."
+    },
+    {
+      "name": "login-controller",
+      "description": "Operations pertaining to logins and app status."
+    },
+    {
+      "name": "bookings-controller",
+      "description": "Operations pertaining to bookings."
+    },
+    {
+      "name": "users-controller",
+      "description": "Operations pertaining to users."
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "login-controller"
+        ],
+        "summary": "hello",
+        "operationId": "helloUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/bookings/addUserToGame": {
+      "post": {
+        "tags": [
+          "bookings-controller"
+        ],
+        "summary": "Add a registered user to a game",
+        "description": "Admin only. \nStatus and Message fields are for output only, and will be ignored on input.",
+        "operationId": "addUserToGameUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "eventBookingData",
+            "description": "eventBookingData",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventBookingData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventBookingData"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/bookings/bookMeIntoGame": {
+      "post": {
+        "tags": [
+          "bookings-controller"
+        ],
+        "summary": "Book current user for a game",
+        "description": "Book the currently logged in user into a game. Not to be confused with addUserToGame, which is meant to be called by administrators.",
+        "operationId": "bookAuthenticatedUserIntoGameUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "gameBooking",
+            "description": "gameBooking",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GameBooking"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventBookingReply"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/bookings/myAvailableSlots": {
+      "get": {
+        "tags": [
+          "bookings-controller"
+        ],
+        "summary": "Count of events for a given year",
+        "operationId": "getMyCountOfAvailableSlotsUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/bookings/removeMeFromGame": {
+      "delete": {
+        "tags": [
+          "bookings-controller"
+        ],
+        "summary": "Remove current user from a game",
+        "description": "Remove the currently logged in user from a game. Not to be confused with removeUserFromGame, which is meant to be called by administrators.",
+        "operationId": "removeAuthenticatedUserFromGameUsingDELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "gameBooking",
+            "description": "gameBooking",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GameBooking"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventBookingReply"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/bookings/removeUserFromGame": {
+      "delete": {
+        "tags": [
+          "bookings-controller"
+        ],
+        "summary": "Remove a registered user from a game",
+        "description": "Admin only. \nStatus and Message fields are for output only, and will be ignored on input.",
+        "operationId": "removeUserFromGameUsingDELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "eventBookingData",
+            "description": "eventBookingData",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventBookingData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventBookingData"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/bookings/setGmStatusForPlayerInGame": {
+      "post": {
+        "tags": [
+          "bookings-controller"
+        ],
+        "summary": "Set the GM flag for a user who is booked in a game",
+        "description": "Admin only. \nStatus and Message fields are for output only, and will be ignored on input.",
+        "operationId": "setGmStatusForPlayerInGameUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "eventBookingData",
+            "description": "eventBookingData",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventBookingData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventBookingData"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/all": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "List all events for the current calendar year",
+        "operationId": "findAllUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/all/public": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "A public facing list of all events for the current calendar year. Does not require login.",
+        "operationId": "findAllPublicUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventsPublic"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/category/{category}": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Find all events for a category.",
+        "operationId": "findByCategoryUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "description": "category",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/count": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Count of events for the current calendar year",
+        "operationId": "getCountUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/create": {
+      "put": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Create an event for the current year.",
+        "operationId": "createEventUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "eventCreate",
+            "description": "eventCreate",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateEventDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/eventmeta": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "List all possible categories and tags for events.",
+        "operationId": "findMetaTypesUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventMetadataDTO"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/favorite/create": {
+      "post": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Create a favorite/starred event for another user by event ID and user ID",
+        "description": "Admin only.",
+        "operationId": "createUserEventFavoriteUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "eventAndUser",
+            "description": "eventAndUser",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventAndUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventAndUser"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/favorite/delete": {
+      "delete": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Remove a favorite/starred event for another user by event ID and user ID",
+        "description": "Admin only.",
+        "operationId": "deleteUserEventFavoriteUsingDELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "eventAndUser",
+            "description": "eventAndUser",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventAndUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventAndUser"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/events/find": {
+      "post": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Find an event by event ID.",
+        "operationId": "findOneUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "eventFind",
+            "description": "eventFind",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventFind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/me": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Find all events for the current user.",
+        "operationId": "findForMeUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/me/favorite/create": {
+      "post": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Create a favorite/starred favoriteEvent for myself by favoriteEvent ID",
+        "operationId": "createMyUserEventFavoriteUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "favoriteEvent",
+            "description": "favoriteEvent",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FavoriteEvent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/FavoriteEvent"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/me/favorite/delete": {
+      "delete": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Delete a favorite/starred favoriteEvent for myself by favoriteEvent ID",
+        "operationId": "deleteMyUserEventFavoriteUsingDELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "favoriteEvent",
+            "description": "favoriteEvent",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FavoriteEvent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/FavoriteEvent"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/events/me/favorites": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Find all favorited events for the current user.",
+        "operationId": "findFavoritesForMeUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Events"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/page/public/{length}/{offset}": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "List a page events for the current calendar year",
+        "operationId": "findPagePublicUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "length",
+            "in": "path",
+            "description": "length",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "in": "path",
+            "description": "offset",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventsPublic"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/page/{length}/{offset}": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "List a page events for the current calendar year",
+        "operationId": "findPageUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "length",
+            "in": "path",
+            "description": "length",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "in": "path",
+            "description": "offset",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/since/{epochtime}": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Find all events for the current year, updated after a time specified as UTC epoch.",
+        "operationId": "findUpdatedAfterEpochTimeUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "epochtime",
+            "in": "path",
+            "description": "epochtime",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/since/{epochtime}/public": {
+      "get": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "A public facing list of all events for the current calendar year since a provided epoch time. Does not require login.",
+        "operationId": "findAllSincePublicUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "epochtime",
+            "in": "path",
+            "description": "epochtime",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventsPublic"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/user": {
+      "post": {
+        "tags": [
+          "events-controller"
+        ],
+        "summary": "Find all events for a registered user by user ID",
+        "description": "Admin only.",
+        "operationId": "findForUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "eventFind",
+            "description": "eventFind",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventFind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/year/{year}/all": {
+      "get": {
+        "tags": [
+          "events-for-year-controller"
+        ],
+        "summary": "Find all events for a given year.",
+        "operationId": "findByYearUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "description": "year",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/year/{year}/category/{category}": {
+      "get": {
+        "tags": [
+          "events-for-year-controller"
+        ],
+        "summary": "Find all events for a given year, for a category.",
+        "operationId": "findByCategoryUsingGET_1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "description": "year",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "category",
+            "in": "path",
+            "description": "category",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/year/{year}/count": {
+      "get": {
+        "tags": [
+          "events-for-year-controller"
+        ],
+        "summary": "Count of events for a given year",
+        "operationId": "getCountForYearUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "description": "year",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/year/{year}/me": {
+      "get": {
+        "tags": [
+          "events-for-year-controller"
+        ],
+        "summary": "Find all events for the current user for a given year.",
+        "operationId": "findForMeForYearUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "description": "year",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/events/year/{year}/page/{length}/{offset}": {
+      "get": {
+        "tags": [
+          "events-for-year-controller"
+        ],
+        "summary": "Find all events for a given year.",
+        "operationId": "findByYearUsingGET_1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "description": "year",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "length",
+            "in": "path",
+            "description": "length",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "in": "path",
+            "description": "offset",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Events"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "login-controller"
+        ],
+        "summary": "Authenticate a user.",
+        "description": "Uses either username or email in payload.",
+        "operationId": "loginUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/addRoleToUser": {
+      "post": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Add a role to a user. Admin only.",
+        "operationId": "addRoleToUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userRole",
+            "description": "userRole",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddUserRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/all": {
+      "get": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Return all registered users. Admin only.",
+        "operationId": "getAllUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/confirmPasswordRequest": {
+      "post": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "confirmPasswordRequest",
+        "operationId": "confirmPasswordRequestUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "request",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConfirmPasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/create": {
+      "put": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Create a new user.",
+        "operationId": "createUserUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "createUser",
+            "description": "createUser",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateUsersDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/id/{id}": {
+      "get": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Display information on a user, searching by ID. Admin only.",
+        "operationId": "findUserByIdUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UsersDTO"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Display information on the current user.",
+        "operationId": "findMeUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UsersDTO"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/me/isadmin": {
+      "get": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Indicate if the current user has admin rights.",
+        "operationId": "isAdminUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/resetPasswordRequest": {
+      "post": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "resetPasswordRequest",
+        "operationId": "resetPasswordRequestUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "request",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PasswordResetRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/setMyPassword": {
+      "post": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Set password for currently logged in user. Ignores userId field in input.",
+        "operationId": "setPasswordForMeUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userPassword",
+            "description": "userPassword",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserPassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/setPassword": {
+      "post": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Set password for a user. Admin only.",
+        "operationId": "setPasswordForUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userPassword",
+            "description": "userPassword",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserPassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/username/{username}": {
+      "get": {
+        "tags": [
+          "users-controller"
+        ],
+        "summary": "Display information on a user, searching by username. Admin only.",
+        "operationId": "findUserByUsernameUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "description": "username",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UsersDTO"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Postmeta": {
+      "type": "object",
+      "properties": {
+        "metaId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "metaKey": {
+          "type": "string"
+        },
+        "metaValue": {
+          "type": "string"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "EventBookingReply": {
+      "type": "object",
+      "properties": {
+        "guid": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "ConfirmPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "EventsPublic": {
+      "type": "object",
+      "properties": {
+        "blogId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BbcEventCategoriesShort"
+          }
+        },
+        "eventAttributes": {
+          "type": "string"
+        },
+        "eventCategoryId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "eventEndDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "eventEndTime": {
+          "$ref": "#/definitions/Time"
+        },
+        "eventId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "eventName": {
+          "type": "string"
+        },
+        "eventSlug": {
+          "type": "string"
+        },
+        "eventStartDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "eventStartTime": {
+          "$ref": "#/definitions/Time"
+        },
+        "eventStatus": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lastUpdated": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Postmeta"
+          }
+        },
+        "postContent": {
+          "type": "string"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "UsersShort": {
+      "type": "object",
+      "properties": {
+        "bbcUserFavorites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BbcUserFavorites"
+          }
+        },
+        "bookingComment": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Time": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "day": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "hours": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minutes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "month": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "seconds": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "time": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timezoneOffset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "year": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "EventMetadataDTO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "Timestamp": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "day": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "hours": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minutes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "month": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "nanos": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "seconds": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "time": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timezoneOffset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "year": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "EventBookingData": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "isGm": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Iterable«EventsPublic»": {
+      "type": "object"
+    },
+    "PasswordResetRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "UsersDTO": {
+      "type": "object",
+      "properties": {
+        "bbcUserFavorites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BbcUserFavorites"
+          }
+        },
+        "bookingComment": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lastUpdated": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Usermeta"
+          }
+        },
+        "userEmail": {
+          "type": "string"
+        },
+        "userNicename": {
+          "type": "string"
+        },
+        "userRegistered": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "userUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "FavoriteEvent": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "Events": {
+      "type": "object",
+      "properties": {
+        "blogId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "bookingExempt": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bookings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Bookings"
+          }
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BbcEventCategoriesShort"
+          }
+        },
+        "eventAllDay": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "eventAttributes": {
+          "type": "string"
+        },
+        "eventCategoryId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "eventDateCreated": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "eventDateModified": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "eventEndDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "eventEndTime": {
+          "$ref": "#/definitions/Time"
+        },
+        "eventId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "eventName": {
+          "type": "string"
+        },
+        "eventOwner": {
+          "$ref": "#/definitions/UsersShort"
+        },
+        "eventPrivate": {
+          "type": "string",
+          "format": "byte"
+        },
+        "eventRoom": {
+          "type": "string"
+        },
+        "eventRsvp": {
+          "type": "string",
+          "format": "byte"
+        },
+        "eventRsvpDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "eventRsvpSpaces": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "eventRsvpTime": {
+          "$ref": "#/definitions/Time"
+        },
+        "eventSlug": {
+          "type": "string"
+        },
+        "eventSpaces": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "eventStartDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "eventStartTime": {
+          "$ref": "#/definitions/Time"
+        },
+        "eventStatus": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "eventTable": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lastUpdated": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "locationId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Postmeta"
+          }
+        },
+        "postContent": {
+          "type": "string"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "EventFind": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Iterable«EventMetadataDTO»": {
+      "type": "object"
+    },
+    "CreateUsersDTO": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "nickname": {
+          "type": "string"
+        },
+        "userEmail": {
+          "type": "string"
+        },
+        "userLogin": {
+          "type": "string"
+        },
+        "userNicename": {
+          "type": "string"
+        },
+        "userPass": {
+          "type": "string"
+        },
+        "userUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "Iterable«long»": {
+      "type": "object"
+    },
+    "EventAndUser": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Iterable«Events»": {
+      "type": "object"
+    },
+    "GameBooking": {
+      "type": "object",
+      "properties": {
+        "gameId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "uuid": {
+          "type": "string"
+        }
+      }
+    },
+    "UserPassword": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "BbcUserFavorites": {
+      "type": "object",
+      "properties": {
+        "bbcUserFavoritesId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "createDate": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "eventId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updateDate": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Usermeta": {
+      "type": "object",
+      "properties": {
+        "metaKey": {
+          "type": "string"
+        },
+        "metaValue": {
+          "type": "string"
+        },
+        "umetaId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "CreateEventDTO": {
+      "type": "object",
+      "properties": {
+        "accessabilityOptions": {
+          "type": "string"
+        },
+        "additionalGms": {
+          "type": "string"
+        },
+        "additionalRequirements": {
+          "type": "string"
+        },
+        "characters": {
+          "type": "string"
+        },
+        "contentAdvisory": {
+          "type": "boolean"
+        },
+        "eventCategoryId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "eventDescription": {
+          "type": "string"
+        },
+        "eventFacilitators": {
+          "type": "string"
+        },
+        "eventMetadataIds": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "eventName": {
+          "type": "string"
+        },
+        "gm": {
+          "type": "string"
+        },
+        "gmAge": {
+          "type": "string"
+        },
+        "length": {
+          "type": "string"
+        },
+        "minPlayers": {
+          "type": "string"
+        },
+        "otherInfo": {
+          "type": "string"
+        },
+        "playerAge": {
+          "type": "string"
+        },
+        "players": {
+          "type": "string"
+        },
+        "playtest": {
+          "type": "string"
+        },
+        "requestMediaEquipment": {
+          "type": "string"
+        },
+        "requestMediaRoom": {
+          "type": "boolean"
+        },
+        "requestPrivateRoom": {
+          "type": "boolean"
+        },
+        "runNumberOfTimes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "safetyTools": {
+          "type": "string"
+        },
+        "schedulingPref": {
+          "type": "string"
+        },
+        "system": {
+          "type": "string"
+        },
+        "tableType": {
+          "type": "string"
+        },
+        "triggerWarnings": {
+          "type": "string"
+        },
+        "userDisplayName": {
+          "type": "string"
+        }
+      }
+    },
+    "BbcEventCategoriesShort": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "slug": {
+          "type": "string"
+        }
+      }
+    },
+    "AddUserRole": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Bookings": {
+      "type": "object",
+      "properties": {
+        "bookingComment": {
+          "type": "string"
+        },
+        "bookingDate": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "bookingId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "bookingMeta": {
+          "type": "string"
+        },
+        "bookingPrice": {
+          "type": "number"
+        },
+        "bookingSpaces": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bookingStatus": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bookingTaxRate": {
+          "type": "number"
+        },
+        "bookingTaxes": {
+          "type": "number"
+        },
+        "event": {
+          "$ref": "#/definitions/Events"
+        },
+        "lastUpdated": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "user": {
+          "$ref": "#/definitions/UsersShort"
+        }
+      }
+    }
+  }
+}
