@@ -1,5 +1,5 @@
-# BBC_dataservices
-Microservice for BBC booking data. The service uses Spring Boot as a platform, and SwaggerUI (served as /swagger-ui.html) to document itself. You will need to install java 1.8 and maven to build and start the service.
+# Little Red
+Microservice for attendance booking for small tabletop game conventions. The service uses Spring Boot as a platform, and SwaggerUI (served as /swagger-ui.html) to document itself. You will need to install java 1.8 and maven to build and start the service.
 ## Building the project
 ### Requirements
 In order to build, you will need to have Maven 3.3.1 (or better) and Java 1.8 installed. Once you install them, test them with the following command:
