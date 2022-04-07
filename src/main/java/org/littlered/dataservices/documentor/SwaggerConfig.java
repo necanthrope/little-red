@@ -33,7 +33,7 @@ public class SwaggerConfig {
 				"REST API for Little Red, a registration system for small tabletop game conventions.",
 				"1.0",
 				"Terms of service",
-				new Contact("Jeremy Tidwell", "https://www.bigbadcon.com/", "necanthrope@gmail.com"),
+				new Contact("Jeremy Tidwell", "https://github.com/necanthrope/little-red", "necanthrope@gmail.com"),
 				"Apache License Version 2.0",
 				"https://www.apache.org/licenses/LICENSE-2.0");
 		return apiInfo;

@@ -1,13 +1,13 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "REST API for Big Bad Con",
+    "description": "REST API for Little Red",
     "version": "1.0",
-    "title": "Big Bad Con data service REST API",
+    "title": "Little Red data service REST API",
     "termsOfService": "Terms of service",
     "contact": {
       "name": "Jeremy Tidwell",
-      "url": "https://www.bigbadcon.com/",
+      "url": "https://github.com/necanthrope/little-red",
       "email": "necanthrope@gmail.com"
     },
     "license": {

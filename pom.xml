@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.bigbadcon.dataservices</groupId>
+	<groupId>org.littlered.dataservices</groupId>
 	<artifactId>dataservices</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>dataservices</name>
-	<description>Data services for Big Bad Con</description>
+	<description>Data services for Little Red</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

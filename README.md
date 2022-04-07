@@ -50,7 +50,7 @@ db.password=[redacted]
 hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 hibernate.show_sql=true
 hibernate.hbm2ddl.auto=validate
-entitymanager.packagesToScan=com.bigbadcon.dataservices.entity
+entitymanager.packagesToScan=org.littlered.dataservices.entity
 spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect
 
 # Logging
@@ -85,7 +85,7 @@ Once it's up and running, it will be listening on whatever port you set in the p
 
 ### Troubleshooting
 ```
-Exception in thread "main" java.lang.UnsupportedClassVersionError: com/bigbadcon/dataservices/DataservicesApplication : Unsupported major.minor version 52.0
+Exception in thread "main" java.lang.UnsupportedClassVersionError: org/littlered/dataservices/DataservicesApplication : Unsupported major.minor version 52.0
 ```
 If you get an error that resembles this when you try to start the service, you are using the wrong version of java.  It's possible to install multiple versions on a machine, so make sure you're using the 1.8 java executable.
 
