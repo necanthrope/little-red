@@ -6,7 +6,6 @@ import javax.persistence.*;
  * Created by Jeremy on 8/29/2017.
  */
 @Entity
-//@Table(name = "options", schema = "bbc_wordpress")
 public class Options {
 	private Long optionId;
 	private String optionName;

@@ -1,6 +1,6 @@
 package org.littlered.dataservices.entity.eventManager;
 
-import org.littlered.dataservices.entity.wordpress.shrt.Users;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
@@ -12,7 +12,6 @@ import java.sql.Timestamp;
  * Created by Jeremy on 3/19/2017.
  */
 @Entity
-//@Table(name = "em_bookings")
 public class EmBookings implements Serializable {
 	private Long bookingId;
 	private Integer bookingSpaces;
@@ -25,7 +24,7 @@ public class EmBookings implements Serializable {
 	private BigDecimal bookingTaxes;
 	private Timestamp lastUpdated;
 
-	private Users user;
+	private BbcUsersShort user;
 	private EmEvents eventId;
 
 	@Id
@@ -41,11 +40,11 @@ public class EmBookings implements Serializable {
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "person_id", referencedColumnName = "ID")
-	public Users getUser() {
+	public BbcUsersShort getUser() {
 		return this.user;
 	}
 
-	public void setUser(Users user) {
+	public void setUser(BbcUsersShort user) {
 		this.user = user;
 	}
 

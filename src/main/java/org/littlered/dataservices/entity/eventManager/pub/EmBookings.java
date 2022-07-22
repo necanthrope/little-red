@@ -1,6 +1,6 @@
 package org.littlered.dataservices.entity.eventManager.pub;
 
-import org.littlered.dataservices.entity.wordpress.shrt.Users;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
@@ -21,7 +21,7 @@ public class EmBookings implements Serializable {
 	private String bookingMeta;
 	private Timestamp lastUpdated;
 
-	private Users user;
+	private BbcUsersShort user;
 	private EmEvents eventId;
 
 	@Id
@@ -37,11 +37,11 @@ public class EmBookings implements Serializable {
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "person_id", referencedColumnName = "ID")
-	public Users getUser() {
+	public BbcUsersShort getUser() {
 		return this.user;
 	}
 
-	public void setUser(Users user) {
+	public void setUser(BbcUsersShort user) {
 		this.user = user;
 	}
 

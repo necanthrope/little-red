@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-//@Table(name = "postmeta")
 public class Postmeta implements Serializable {
 	private long metaId;
 	private long postId;

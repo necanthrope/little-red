@@ -7,7 +7,6 @@ import java.math.BigDecimal;
  * Created by Jeremy on 3/19/2017.
  */
 @Entity
-//@Table(name = "em_tickets_bookings")
 public class EmTicketsBookings {
 	private Long ticketBookingId;
 	private EmBookings bookingId;

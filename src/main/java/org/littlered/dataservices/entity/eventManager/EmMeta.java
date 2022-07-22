@@ -7,7 +7,6 @@ import java.sql.Timestamp;
  * Created by Jeremy on 3/19/2017.
  */
 @Entity
-//@Table(name = "em_meta")
 public class EmMeta {
 	private long metaId;
 	private long objectId;

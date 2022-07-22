@@ -7,9 +7,11 @@ import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 @Configuration
@@ -24,7 +26,8 @@ public class CustomPhysicalNamingStrategy implements PhysicalNamingStrategy, Ser
 			InputStream inputStream;
 			inputStream = DataservicesApplication.class.getClassLoader().getResourceAsStream("application.properties");
 			if (inputStream == null) {
-				inputStream = new FileInputStream("application.properties");
+				String propFilePath = System.getProperty("user.dir").concat(File.separator).concat("application.properties");
+				inputStream = Files.newInputStream(Paths.get(propFilePath));
 			}
 			props.load(inputStream);
 		} catch (Exception e) {

@@ -123,3 +123,12 @@ SET @sql := CONCAT(
 PREPARE stmt from @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+
+SET @sql := CONCAT(
+'CREATE VIEW bbc_users_short AS ',
+'select ID, display_name from ', @table_prefix, 'users;' );
+
+PREPARE stmt from @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

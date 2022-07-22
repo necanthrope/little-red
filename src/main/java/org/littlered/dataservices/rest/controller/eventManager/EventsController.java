@@ -3,7 +3,7 @@ package org.littlered.dataservices.rest.controller.eventManager;
 import org.littlered.dataservices.Constants;
 import org.littlered.dataservices.dto.littlered.EventMetadataDTO;
 import org.littlered.dataservices.dto.eventManager.CreateEventDTO;
-import org.littlered.dataservices.entity.wordpress.shrt.Users;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import org.littlered.dataservices.exception.FavoritingException;
 import org.littlered.dataservices.rest.params.eventManager.FavoriteEvent;
 import org.littlered.dataservices.rest.params.eventManager.EventAndUser;
@@ -224,7 +224,7 @@ public class EventsController {
 	public void createEvent(@RequestBody CreateEventDTO eventCreate, HttpServletResponse response) throws Exception {
 
 		Long userId = usersService.getCurrentUser().getId();
-		Users user = usersService.findShortUser(userId);
+		BbcUsersShort user = usersService.findShortUser(userId);
 
 		try {
 			eventsJPAService.saveEvents(eventCreate, user);

@@ -30,7 +30,7 @@ public interface EventsRepositoryInterface extends PagingAndSortingRepository<Em
 	//@Query(value = "SELECT e from Events e WHERE e.categories = ?1 ")
 	List<EmEvents> findByCategories_slug(String category);
 
-	@Query(value = "SELECT c.eventId from org.littlered.dataservices.entity.wordpress.BbcEventCategories c where c.slug = ?2 and FUNCTION('YEAR', c.eventId.eventStartDate) = ?1")
+	@Query(value = "SELECT c.eventId from BbcEventCategories c where c.slug = ?2 and FUNCTION('YEAR', c.eventId.eventStartDate) = ?1")
 	List<EmEvents> findByCategoryAndYear(Integer year, String category);
 
 	@Query(value = "SELECT count(e) from EmEvents e where function('YEAR', e.eventStartDate) = ?1 and e.eventSlug not like 'verify%badge%'")

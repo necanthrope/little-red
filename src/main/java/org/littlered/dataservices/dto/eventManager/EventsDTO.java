@@ -4,7 +4,7 @@ import org.littlered.dataservices.entity.eventManager.EmBookings;
 import org.littlered.dataservices.entity.eventManager.EmEvents;
 import org.littlered.dataservices.entity.wordpress.shrt.BbcEventCategories;
 import org.littlered.dataservices.entity.wordpress.Postmeta;
-import org.littlered.dataservices.entity.wordpress.shrt.Users;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import de.ailis.pherialize.Mixed;
 import de.ailis.pherialize.MixedArray;
 import de.ailis.pherialize.Pherialize;
@@ -21,7 +21,7 @@ public class EventsDTO implements Serializable{
 
 	private Long eventId;
 	private String eventSlug;
-	private Users eventOwner;
+	private BbcUsersShort eventOwner;
 	private Integer eventStatus;
 	private String eventName;
 	private Time eventStartTime;
@@ -44,7 +44,7 @@ public class EventsDTO implements Serializable{
 
 	private HashMap<String, String> eventAttributes;
 	private String postContent;
-	private ArrayList<Users> attendees = new ArrayList<>();
+	private ArrayList<BbcUsersShort> attendees = new ArrayList<>();
 	private Set<BbcEventCategories> categories;
 	private Set<Postmeta> metadata;
 
@@ -64,11 +64,11 @@ public class EventsDTO implements Serializable{
 		this.eventSlug = eventSlug;
 	}
 
-	public Users getEventOwner() {
+	public BbcUsersShort getEventOwner() {
 		return eventOwner;
 	}
 
-	public void setEventOwner(Users eventOwner) {
+	public void setEventOwner(BbcUsersShort eventOwner) {
 		this.eventOwner = eventOwner;
 	}
 
@@ -232,11 +232,11 @@ public class EventsDTO implements Serializable{
 		this.postContent = postContent;
 	}
 
-	public ArrayList<Users> getAttendees() {
+	public ArrayList<BbcUsersShort> getAttendees() {
 		return attendees;
 	}
 
-	public void setAttendees(ArrayList<Users> attendees) {
+	public void setAttendees(ArrayList<BbcUsersShort> attendees) {
 		this.attendees = attendees;
 	}
 

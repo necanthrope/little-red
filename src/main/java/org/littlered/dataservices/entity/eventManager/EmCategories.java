@@ -6,7 +6,6 @@ import javax.persistence.*;
  * Created by Jeremy on 3/19/2017.
  */
 @Entity
-//@Table(name = "em_categories")
 public class EmCategories {
 	private Long categoryId;
 	private String categorySlug;

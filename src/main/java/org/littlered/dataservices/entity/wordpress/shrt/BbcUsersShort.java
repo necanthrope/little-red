@@ -11,8 +11,7 @@ import java.util.Set;
  * Created by Jeremy on 3/26/2017.
  */
 @Entity
-//@Table(name = "users")
-public class Users implements Serializable {
+public class BbcUsersShort implements Serializable {
 	private Long id;
 	private String displayName;
 	private String bookingComment;
@@ -55,7 +54,7 @@ public class Users implements Serializable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		Users that = (Users) o;
+		BbcUsersShort that = (BbcUsersShort) o;
 
 		if (id != null ? !id.equals(that.id) : that.id != null) return false;
 		if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;

@@ -2,7 +2,7 @@ package org.littlered.dataservices.service;
 
 import org.littlered.dataservices.Constants;
 import org.littlered.dataservices.dto.wordpress.UsersDTO;
-import org.littlered.dataservices.entity.wordpress.shrt.Users;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import org.littlered.dataservices.repository.wordpress.interfaces.UsersRepositoryInterface;
 import org.littlered.dataservices.repository.wordpress.interfaces.UsersShortRepositoryInterface;
 import org.littlered.dataservices.security.password.PhpPasswordEncoder;
@@ -101,8 +101,8 @@ public class UsersService {
 		return dto;
 	}
 
-	public Users findShortUser(Long userId) throws Exception {
-		ArrayList<Users> users = usersShortDAO.findById(userId);
+	public BbcUsersShort findShortUser(Long userId) throws Exception {
+		ArrayList<BbcUsersShort> users = usersShortDAO.findById(userId);
 		if(users == null || users.size() == 0) {
 			throw new Exception("No matching user for ID ".concat(userId.toString()).concat("!"));
 		}

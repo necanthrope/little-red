@@ -6,7 +6,6 @@ import javax.persistence.*;
  * Created by Jeremy on 7/1/2017.
  */
 @Entity
-//@Table(name = "usermeta")
 public class Usermeta {
 	private long umetaId;
 	private String metaKey;

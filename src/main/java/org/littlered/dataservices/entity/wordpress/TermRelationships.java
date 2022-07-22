@@ -4,7 +4,6 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-//@Table(name = "term_relationships")
 @IdClass(TermRelationshipsPK.class)
 public class TermRelationships {
 	private long objectId;

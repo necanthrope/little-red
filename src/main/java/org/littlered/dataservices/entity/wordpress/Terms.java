@@ -4,7 +4,6 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-//@Table(name = "terms")
 public class Terms {
 	private long termId;
 	private String name;

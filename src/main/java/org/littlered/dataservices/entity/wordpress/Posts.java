@@ -8,7 +8,6 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-//@Table(name = "posts")
 public class Posts implements Serializable {
 	private Long id;
 	private Long postAuthor;

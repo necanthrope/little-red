@@ -11,7 +11,6 @@ import java.util.Set;
  * Created by Jeremy on 3/26/2017.
  */
 @Entity
-//@Table(name = "users")
 public class Users {
 	private Long id;
 	private String userLogin;

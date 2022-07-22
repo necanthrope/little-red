@@ -4,7 +4,6 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-//@Table(name = "termmeta")
 public class Termmeta {
 	private long metaId;
 	private long termId;

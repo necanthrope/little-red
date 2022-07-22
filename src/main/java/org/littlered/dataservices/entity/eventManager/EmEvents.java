@@ -2,7 +2,7 @@ package org.littlered.dataservices.entity.eventManager;
 
 import org.littlered.dataservices.entity.wordpress.shrt.BbcEventCategories;
 import org.littlered.dataservices.entity.wordpress.Postmeta;
-import org.littlered.dataservices.entity.wordpress.shrt.Users;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -16,11 +16,10 @@ import java.util.Set;
  * Created by Jeremy on 3/19/2017.
  */
 @Entity
-//@Table(name = "em_events")
 public class EmEvents implements Serializable {
 	private Long eventId;
 	private String eventSlug;
-	private Users eventOwner;
+	private BbcUsersShort eventOwner;
 	private Integer eventStatus;
 	private String eventName;
 	private Time eventStartTime;
@@ -75,11 +74,11 @@ public class EmEvents implements Serializable {
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "event_owner", referencedColumnName = "ID")
-	public Users getEventOwner() {
+	public BbcUsersShort getEventOwner() {
 		return eventOwner;
 	}
 
-	public void setEventOwner(Users eventOwner) {
+	public void setEventOwner(BbcUsersShort eventOwner) {
 		this.eventOwner = eventOwner;
 	}
 

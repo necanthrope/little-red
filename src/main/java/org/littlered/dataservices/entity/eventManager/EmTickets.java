@@ -8,7 +8,6 @@ import java.sql.Timestamp;
  * Created by Jeremy on 3/19/2017.
  */
 @Entity
-//@Table(name = "em_tickets")
 public class EmTickets {
 	private long ticketId;
 	private long eventId;

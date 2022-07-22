@@ -10,7 +10,7 @@ import org.littlered.dataservices.entity.eventManager.EmTicketsBookings;
 import org.littlered.dataservices.entity.wordpress.BbcBookingCountView;
 import org.littlered.dataservices.entity.wordpress.Postmeta;
 import org.littlered.dataservices.entity.wordpress.shrt.BbcEventCategories;
-import org.littlered.dataservices.entity.wordpress.shrt.Users;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import org.littlered.dataservices.repository.eventManager.interfaces.*;
 import org.littlered.dataservices.repository.wordpress.interfaces.UsersRepositoryInterface;
 import org.littlered.dataservices.repository.wordpress.interfaces.UsersShortRepositoryInterface;
@@ -109,7 +109,7 @@ public class BookingsService {
 		EmEvents event = eventsDAO.findOne(eventId);
 		logger.info("FavoriteEvent found: " + event.toString());
 		org.littlered.dataservices.entity.wordpress.Users user = usersDAO.findOne(userId);
-		Users usersShort = usersShortDAO.findOne(userId);
+		BbcUsersShort bbcUsersShort = usersShortDAO.findOne(userId);
 		logger.info("User found: " + user.toString());
 
 		Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -281,7 +281,7 @@ public class BookingsService {
 
 		EmBookings booking = new EmBookings();
 		booking.setEventId(event);
-		booking.setUser(usersShort);
+		booking.setUser(bbcUsersShort);
 		booking.setBookingSpaces(bookingSpaces);
 		booking.setBookingDate(now);
 		booking.setBookingStatus(bookingStatus);

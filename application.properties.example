@@ -1,7 +1,7 @@
 server.port=8090
 # Database
 db.driver=com.mysql.jdbc.Driver
-db.url=jdbc:mysql://localhost:3306/bbc_wordpress?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8&tinyInt1isBit=false
+db.url=jdbc:mysql://localhost:3306/littlered?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8&tinyInt1isBit=false
 db.username=
 db.password=
 db.table_prefix=

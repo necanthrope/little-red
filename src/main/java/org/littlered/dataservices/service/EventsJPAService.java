@@ -3,14 +3,12 @@ package org.littlered.dataservices.service;
 import org.littlered.dataservices.Constants;
 import org.littlered.dataservices.dto.littlered.EventMetadataDTO;
 import org.littlered.dataservices.dto.eventManager.CreateEventDTO;
-import org.littlered.dataservices.entity.eventManager.*;
 import org.littlered.dataservices.entity.eventManager.EmEvents;
 import org.littlered.dataservices.entity.eventManager.EmTickets;
 import org.littlered.dataservices.entity.wordpress.Postmeta;
 import org.littlered.dataservices.entity.wordpress.Posts;
 import org.littlered.dataservices.entity.wordpress.TermRelationships;
-import org.littlered.dataservices.entity.wordpress.shrt.Users;
-import org.littlered.dataservices.repository.eventManager.interfaces.*;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import org.littlered.dataservices.repository.wordpress.interfaces.PostMetaJPAInterface;
 import org.littlered.dataservices.repository.wordpress.interfaces.PostsJPAInterface;
 import org.littlered.dataservices.util.php.slug.WpSlugUtil;
@@ -62,7 +60,7 @@ public class EventsJPAService {
 	private EntityManager em;
 
 	@Transactional
-	public void saveEvents(CreateEventDTO saveEvent, Users user) throws Exception {
+	public void saveEvents(CreateEventDTO saveEvent, BbcUsersShort user) throws Exception {
 
 		Timestamp now = Timestamp.from(Instant.now());
 

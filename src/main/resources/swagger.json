@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "REST API for Little Red",
+    "description": "REST API for Little Red, a registration system for small tabletop game conventions.",
     "version": "1.0",
     "title": "Little Red data service REST API",
     "termsOfService": "Terms of service",
@@ -351,7 +351,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -383,7 +383,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/EventsPublic"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -424,7 +424,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -666,7 +666,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "201": {
@@ -828,7 +828,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Events"
+                "$ref": "#/definitions/EmEvents"
               }
             }
           },
@@ -879,7 +879,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/EventsPublic"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -929,7 +929,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -970,7 +970,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -1011,7 +1011,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/EventsPublic"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -1055,7 +1055,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "201": {
@@ -1100,7 +1100,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -1149,7 +1149,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -1296,7 +1296,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Events"
+              "$ref": "#/definitions/EmEvents"
             }
           },
           "401": {
@@ -1328,6 +1328,100 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/password/request": {
+      "post": {
+        "tags": [
+          "login-controller"
+        ],
+        "summary": "Request a password reset. Sends an email to the user, if found by the supplied email.",
+        "description": "Uses email in payload.",
+        "operationId": "requestResetPasswordForUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "requestResetPassword",
+            "description": "requestResetPassword",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestResetPassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/password/reset": {
+      "post": {
+        "tags": [
+          "login-controller"
+        ],
+        "summary": "Perform a password reset, using the token sent to the user via email.",
+        "description": "Uses email in payload.",
+        "operationId": "performResetPasswordForUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "performResetPassword",
+            "description": "performResetPassword",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PerformResetPassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
           },
           "201": {
             "description": "Created"
@@ -1792,6 +1886,27 @@
     }
   },
   "definitions": {
+    "BbcUsersShort": {
+      "type": "object",
+      "properties": {
+        "bbcUserFavorites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BbcUserFavorites"
+          }
+        },
+        "bookingComment": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "Postmeta": {
       "type": "object",
       "properties": {
@@ -1836,94 +1951,17 @@
         }
       }
     },
-    "EventsPublic": {
+    "RequestResetPassword": {
       "type": "object",
       "properties": {
-        "blogId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/BbcEventCategoriesShort"
-          }
-        },
-        "eventAttributes": {
+        "emailAddress": {
           "type": "string"
         },
-        "eventCategoryId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "eventEndDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "eventEndTime": {
-          "$ref": "#/definitions/Time"
-        },
-        "eventId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "eventName": {
+        "emailBody": {
           "type": "string"
         },
-        "eventSlug": {
+        "emailSubject": {
           "type": "string"
-        },
-        "eventStartDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "eventStartTime": {
-          "$ref": "#/definitions/Time"
-        },
-        "eventStatus": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "groupId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "lastUpdated": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "metadata": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Postmeta"
-          }
-        },
-        "postContent": {
-          "type": "string"
-        },
-        "postId": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "UsersShort": {
-      "type": "object",
-      "properties": {
-        "bbcUserFavorites": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/BbcUserFavorites"
-          }
-        },
-        "bookingComment": {
-          "type": "string"
-        },
-        "displayName": {
-          "type": "string"
-        },
-        "id": {
-          "type": "integer",
-          "format": "int64"
         }
       }
     },
@@ -2053,9 +2091,6 @@
         }
       }
     },
-    "Iterable«EventsPublic»": {
-      "type": "object"
-    },
     "PasswordResetRequest": {
       "type": "object",
       "properties": {
@@ -2122,7 +2157,73 @@
         }
       }
     },
-    "Events": {
+    "EventFind": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Iterable«EventMetadataDTO»": {
+      "type": "object"
+    },
+    "CreateUsersDTO": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "nickname": {
+          "type": "string"
+        },
+        "userEmail": {
+          "type": "string"
+        },
+        "userLogin": {
+          "type": "string"
+        },
+        "userNicename": {
+          "type": "string"
+        },
+        "userPass": {
+          "type": "string"
+        },
+        "userUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "Iterable«EmEvents»": {
+      "type": "object"
+    },
+    "Iterable«long»": {
+      "type": "object"
+    },
+    "EventAndUser": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "EmEvents": {
       "type": "object",
       "properties": {
         "blogId": {
@@ -2136,13 +2237,13 @@
         "bookings": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Bookings"
+            "$ref": "#/definitions/EmBookings"
           }
         },
         "categories": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/BbcEventCategoriesShort"
+            "$ref": "#/definitions/BbcEventCategories"
           }
         },
         "eventAllDay": {
@@ -2177,7 +2278,7 @@
           "type": "string"
         },
         "eventOwner": {
-          "$ref": "#/definitions/UsersShort"
+          "$ref": "#/definitions/BbcUsersShort"
         },
         "eventPrivate": {
           "type": "string",
@@ -2248,72 +2349,6 @@
         }
       }
     },
-    "EventFind": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "Iterable«EventMetadataDTO»": {
-      "type": "object"
-    },
-    "CreateUsersDTO": {
-      "type": "object",
-      "properties": {
-        "displayName": {
-          "type": "string"
-        },
-        "firstName": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "nickname": {
-          "type": "string"
-        },
-        "userEmail": {
-          "type": "string"
-        },
-        "userLogin": {
-          "type": "string"
-        },
-        "userNicename": {
-          "type": "string"
-        },
-        "userPass": {
-          "type": "string"
-        },
-        "userUrl": {
-          "type": "string"
-        }
-      }
-    },
-    "Iterable«long»": {
-      "type": "object"
-    },
-    "EventAndUser": {
-      "type": "object",
-      "properties": {
-        "eventId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "status": {
-          "type": "string"
-        },
-        "userId": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "Iterable«Events»": {
-      "type": "object"
-    },
     "GameBooking": {
       "type": "object",
       "properties": {
@@ -2362,6 +2397,50 @@
         "userId": {
           "type": "integer",
           "format": "int64"
+        }
+      }
+    },
+    "EmBookings": {
+      "type": "object",
+      "properties": {
+        "bookingComment": {
+          "type": "string"
+        },
+        "bookingDate": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "bookingId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "bookingMeta": {
+          "type": "string"
+        },
+        "bookingPrice": {
+          "type": "number"
+        },
+        "bookingSpaces": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bookingStatus": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bookingTaxRate": {
+          "type": "number"
+        },
+        "bookingTaxes": {
+          "type": "number"
+        },
+        "eventId": {
+          "$ref": "#/definitions/EmEvents"
+        },
+        "lastUpdated": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "user": {
+          "$ref": "#/definitions/BbcUsersShort"
         }
       }
     },
@@ -2479,7 +2558,33 @@
         }
       }
     },
-    "BbcEventCategoriesShort": {
+    "AddUserRole": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "PerformResetPassword": {
+      "type": "object",
+      "properties": {
+        "emailAddress": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "uuid": {
+          "type": "string"
+        }
+      }
+    },
+    "BbcEventCategories": {
       "type": "object",
       "properties": {
         "eventId": {
@@ -2495,62 +2600,6 @@
         },
         "slug": {
           "type": "string"
-        }
-      }
-    },
-    "AddUserRole": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "type": "string"
-        },
-        "userId": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "Bookings": {
-      "type": "object",
-      "properties": {
-        "bookingComment": {
-          "type": "string"
-        },
-        "bookingDate": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "bookingId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "bookingMeta": {
-          "type": "string"
-        },
-        "bookingPrice": {
-          "type": "number"
-        },
-        "bookingSpaces": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "bookingStatus": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "bookingTaxRate": {
-          "type": "number"
-        },
-        "bookingTaxes": {
-          "type": "number"
-        },
-        "event": {
-          "$ref": "#/definitions/Events"
-        },
-        "lastUpdated": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "user": {
-          "$ref": "#/definitions/UsersShort"
         }
       }
     }

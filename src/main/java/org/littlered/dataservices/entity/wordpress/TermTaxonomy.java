@@ -4,7 +4,6 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-//@Table(name = "term_taxonomy")
 public class TermTaxonomy {
 	private long termTaxonomyId;
 	private long termId;
