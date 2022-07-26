@@ -11,6 +11,7 @@ import org.littlered.dataservices.security.password.PhpPasswordEncoder;
 import org.littlered.dataservices.util.php.parser.SerializedPhpParser;
 import com.marcospassos.phpserializer.Serializer;
 import com.marcospassos.phpserializer.SerializerBuilder;
+import org.openapitools.client.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -175,5 +176,27 @@ public class UsersJPAService {
 		usermetaJPAInterface.save(capabilities);
 
 		return new ArrayList<>(newCaps.keySet());
+	}
+
+	public Usermeta findUsermetaByUserIdAndMetaKey (Users user, String key) throws Exception {
+		List<Usermeta> meta = usermetaJPAInterface.findUsermetaByUserIdAndMetaKey(user.getId(), key);
+		if (meta.size() == 0) {
+			return null;
+		}
+		return meta.get(0);
+
+	}
+
+	public void createUserMeta(Users user, String key, String value) {
+		Usermeta usermeta = new Usermeta();
+		usermeta.setUserId(user.getId());
+		usermeta.setMetaKey(key);
+		usermeta.setMetaValue(value);
+		usermetaJPAInterface.save(usermeta);
+	}
+
+	public void deleteUserMeta(Users user, String key) {
+		List<Usermeta> deleteMetas = usermetaJPAInterface.findUsermetaByUserIdAndMetaKey(user.getId(), key);
+		usermetaJPAInterface.delete(deleteMetas);
 	}
 }

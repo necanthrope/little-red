@@ -62,4 +62,6 @@ public final class Constants {
 	public static final String DEFAULT_WP_BOOKING_END_TIME = "12:00 AM";
 	public static final String DEFAULT_WP_BOOKING_RSVP_TIME = "12:00 AM";
 
+	public static final String EVENTBRITE_TOKEN_USERMETA_KEY = "eventbrite_token";
+
 }
