@@ -10859,6 +10859,18 @@
                 "type": "string"
               }
             }
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "description": "Expand query results",
+            "explode": true,
+            "style": "form",
+            "schema": {
+              "enum": [
+                "attendee"
+              ]
+            }
           }
         ],
         "responses": {
@@ -11832,6 +11844,17 @@
               "items": {
                 "$ref": "#/components/schemas/refund_request_statuses"
               }
+            }
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "description": "Expand query results",
+            "style": "form",
+            "schema": {
+              "enum": [
+                "attendee"
+              ]
             }
           }
         ],
@@ -29328,7 +29351,8 @@
           "started",
           "pending",
           "placed",
-          "abandoned"
+          "abandoned",
+          "refunded"
         ],
         "type": "string",
         "description": "The status of the order",
