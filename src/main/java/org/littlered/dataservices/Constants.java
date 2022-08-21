@@ -17,6 +17,15 @@ public final class Constants {
 	public static ArrayList<String> ROLE_LIST_VOLUNTEER = new ArrayList<>(Collections.singletonList("volunteer"));
 	public static ArrayList<String> ROLE_LIST_VENDOR = new ArrayList<>(Collections.singletonList("vendor"));
 
+	// Individual roles
+	public static String ROLE_SUBSCRIBER = "subscriber";
+	public static String ROLE_SPAMMER = "spammer";
+	public static String ROLE_NOTATTENDING = "notattending";
+	public static String ROLE_NOTATTENDINGTHISYEAR = "notattendingthisyear";
+	public static String ROLE_VOLUNTEER = "volunteer";
+	public static String ROLE_GM = "gm";
+	public static String ROLE_TEEN = "teen";
+
 	public static final String TEEN_CATEGORY_SLUG = "teen";
 	public static final String VOLUNTEER_SHIFT_POSTMETA = "volunteer_shift";
 	public static final String VENDOR_SHIFT_POSTMETA = "vendor_shift";
@@ -49,18 +58,7 @@ public final class Constants {
 	public static final Integer STATUS_CODE_ALREADY_BOOKED = 5;
 	public static final Integer STATUS_CODE_ALREADY_OVERBOOKED = 6;
 
-	public static final String DEFAULT_BOOKING_DATE_FORMAT = "yyyy-MM-dd";
-	public static final String DEFAULT_BOOKING_START_DATE = "2021-10-17";
-	public static final String DEFAULT_BOOKING_END_DATE = "2021-10-17";
-	public static final String DEFAULT_BOOKING_RSVP_DATE = "2021-10-21";
 
-	public static final String DEFAULT_BOOKING_TIME_FORMAT = "hh:mm a";
-	public static final String DEFAULT_BOOKING_START_TIME = "12:00 AM";
-	public static final String DEFAULT_BOOKING_END_TIME = "12:00 AM";
-
-	public static final String DEFAULT_WP_BOOKING_START_TIME = "12:00 AM";
-	public static final String DEFAULT_WP_BOOKING_END_TIME = "12:00 AM";
-	public static final String DEFAULT_WP_BOOKING_RSVP_TIME = "12:00 AM";
 
 	public static final String EVENTBRITE_TOKEN_USERMETA_KEY = "eventbrite_token";
 	public static final String EVENTBRITE_ORDER_USERMETA_PREFIX = "eventbrite_order_";

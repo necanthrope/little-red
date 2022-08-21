@@ -11,17 +11,19 @@ import org.littlered.dataservices.entity.wordpress.TermRelationships;
 import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import org.littlered.dataservices.repository.wordpress.interfaces.PostMetaJPAInterface;
 import org.littlered.dataservices.repository.wordpress.interfaces.PostsJPAInterface;
-import org.littlered.dataservices.util.php.slug.WpSlugUtil;
 import org.littlered.dataservices.repository.eventManager.interfaces.EventsJPARepositoryInterface;
 import org.littlered.dataservices.repository.eventManager.interfaces.TermRelationshipsJPARepositoryInterface;
 import org.littlered.dataservices.repository.eventManager.interfaces.TicketsRepositoryInterface;
+import org.littlered.dataservices.util.UnicodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -36,6 +38,7 @@ import java.util.List;
  */
 @Service
 @Transactional
+@Configuration
 public class EventsJPAService {
 
 	@Autowired
@@ -53,165 +56,264 @@ public class EventsJPAService {
 	@Autowired
 	private TermRelationshipsJPARepositoryInterface termRelationshipsJPARepository;
 
+	@Autowired
+	private BookingsService bookingsService;
+
+	@Autowired
+	private EventsSlugService eventsSlugService;
+
+	@Autowired
+	private UsersJPAService usersJPAService;
+
 	@Value("${display.year.filter}")
 	private String yearFilter;
 
-	@PersistenceContext
-	private EntityManager em;
+	@Value("${display.timezone}")
+	private String defaultEventTimezone;
+
+	@Value("${default.event.date}")
+	private String defaultEventDate;
+
+	@Value("${default.event.time}")
+	private String defaultEventTime;
+
+	@Autowired
+	private EntityManagerFactory emf;
 
 	@Transactional
 	public void saveEvents(CreateEventDTO saveEvent, BbcUsersShort user) throws Exception {
 
+		String defaultEventDateFormat = "yyyy-MM-dd";
+
+		String defaultEventStartDate = yearFilter.concat("-").concat(defaultEventDate);
+		String defaultEventEndDate = yearFilter.concat("-").concat(defaultEventDate);
+		// TODO evaluate use of this field
+		String defaultEventRsvpDate = yearFilter.concat("-").concat(defaultEventDate);
+
+		String defaultEventTimeFormat = "hh:mm:ss";
+		String defaultEventStartTime = defaultEventTime;
+		String defaultEventEndTime = defaultEventTime;
+		// TODO evaluate use of this field
+		String defaultEventRsvpTime = defaultEventTime;
+
 		Timestamp now = Timestamp.from(Instant.now());
 
-		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DEFAULT_BOOKING_DATE_FORMAT);
-		Date startDate = dateFormat.parse(Constants.DEFAULT_BOOKING_START_DATE);
-		Date endDate = dateFormat.parse(Constants.DEFAULT_BOOKING_END_DATE);
+		SimpleDateFormat dateFormat = new SimpleDateFormat(defaultEventDateFormat);
+		Date startDate = dateFormat.parse(defaultEventStartDate);
+		Date endDate = dateFormat.parse(defaultEventEndDate);
 
-		SimpleDateFormat timeFormat = new SimpleDateFormat(Constants.DEFAULT_BOOKING_TIME_FORMAT);
-		Time startTime = new Time(timeFormat.parse(Constants.DEFAULT_BOOKING_START_TIME).getTime());
-		Time endTime = new Time(timeFormat.parse(Constants.DEFAULT_BOOKING_END_TIME).getTime());
+		SimpleDateFormat timeFormat = new SimpleDateFormat(defaultEventTimeFormat);
+		Time startTime = new Time(timeFormat.parse(defaultEventStartTime).getTime());
+		Time endTime = new Time(timeFormat.parse(defaultEventEndTime).getTime());
 
-		String eventSlug = WpSlugUtil.slugify(saveEvent.getEventName());
+		String dateTimeFormatString = defaultEventDateFormat.concat(" ").concat(defaultEventTimeFormat);
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
+		Date startDateTime = new Time(dateTimeFormat.parse(defaultEventStartDate
+				.concat(" ").concat(defaultEventStartTime)).getTime());
+		Date endDateTime = new Time(dateTimeFormat.parse(defaultEventEndDate
+				.concat(" ").concat(defaultEventEndTime)).getTime());
 
-		//EntityTransaction etx = em.getTransaction();
 
-		//etx.begin();
+		if(saveEvent.getRunNumberOfTimes() > 4) {
+			throw new Exception("Maximum number of times to run is four!");
+		}
+
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction etx = em.getTransaction();
+
+		etx.begin();
+
+		usersJPAService.updateUserDisplayName(saveEvent.getGm(), user);
+		usersJPAService.addUserRole(user.getId(), Constants.ROLE_GM);
+
+		usersJPAService.removeUserRole(user.getId(), Constants.ROLE_SUBSCRIBER);
+		usersJPAService.removeUserRole(user.getId(), Constants.ROLE_SPAMMER);
+		usersJPAService.removeUserRole(user.getId(), Constants.ROLE_NOTATTENDING);
+		usersJPAService.removeUserRole(user.getId(), Constants.ROLE_NOTATTENDINGTHISYEAR);
+
+		if (saveEvent.getGmAge().equals("13+")) {
+			usersJPAService.addUserRole(user.getId(), Constants.ROLE_TEEN);
+		}
+
+		if (saveEvent.getGmAge().equals("18+")) {
+			usersJPAService.removeUserRole(user.getId(), Constants.ROLE_TEEN);
+		}
+
 		try {
+			for (int i = 0; i < saveEvent.getRunNumberOfTimes(); i++) {
 
-			Posts post = new Posts();
-			post.setPostAuthor(1L);
-			post.setPostDate(now);
-			post.setPostDateGmt(now);
-			post.setPostContent(saveEvent.getEventDescription());
-			post.setPostTitle(saveEvent.getEventName());
-			post.setPostStatus("publish");
-			post.setCommentStatus("open");
-			post.setPingStatus("open");
-			post.setPostName(eventSlug);
-			post.setPostModified(now);
-			post.setPostModifiedGmt(now);
-			post.setPostParent(0L);
-			post.setGuid("http://www.bigbadcon.com/?event=".concat(eventSlug));
-			post.setPostType("event");
-			post.setCommentCount(0L);
-			post.setMenuOrder(0);
-			post.setPostContentFiltered("");
-			post.setPostExcerpt("");
-			post.setPostMimeType("");
-			post.setPostPassword("");
-			post.setPingStatus("");
-			post.setToPing("");
-			post.setPinged("");
-			post.setPingStatus("closed");
-			postsService.saveAndFlush(post);
-
-			EmEvents event = new EmEvents();
-			// Fields from wp post object
-			event.setEventOwner(user);
-			event.setEventName(saveEvent.getEventName());
-			event.setPostContent(saveEvent.getEventDescription());
-			event.setPostId(post.getId());
-			event.setEventSlug(eventSlug);
-			event.setEventStatus(0);
-			event.setEventStartDate(new java.sql.Date(startDate.getTime()));
-			event.setEventEndDate(new java.sql.Date(endDate.getTime()));
-			event.setEventStartTime(startTime);
-			event.setEventEndTime(endTime);
-			event.setEventRsvp((byte) 0b1);
-			event.setEventSpaces(0);
-			event.setLocationId(0L);
-			event.setEventDateCreated(now);
-			event.setEventDateModified(now);
-			event.setGroupId(0L);
-			event.setEventAllDay(0);
-			event.setEventPrivate((byte) 0b0);
-			event.setEventRsvpSpaces(0);
-			eventsJPARepositoryService.saveAndFlush(event);
-
-			EmTickets ticket = new EmTickets();
-			ticket.setEventId(event.getEventId());
-			ticket.setTicketPrice(BigDecimal.ZERO);
-			ticket.setTicketStart(now);
-			ticket.setTicketEnd(now);
-			ticket.setTicketMin(1);
-			ticket.setTicketMax(1);
-			ticket.setTicketSpaces(Integer.valueOf(saveEvent.getPlaytest()));
-			ticket.setTicketName("");
-			ticketsService.save(ticket);
+				String eventSlug = eventsSlugService.slugify(saveEvent.getEventName());
 
 
-			Postmeta postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("System");
-			postmeta.setMetaValue(saveEvent.getSystem());
-			postMetaJPAService.save(postmeta);
+				Posts post = new Posts();
+				post.setPostAuthor(user.getId());
+				post.setPostDate(now);
+				post.setPostDateGmt(now);
+				post.setPostContent(UnicodeUtils.replaceSmartQuotes(saveEvent.getEventDescription()));
+				post.setPostTitle(UnicodeUtils.replaceSmartQuotes(saveEvent.getEventName()));
+				post.setPostStatus("draft");
+				post.setCommentStatus("open");
+				post.setPostName(eventSlug);
+				post.setPostModified(now);
+				post.setPostModifiedGmt(now);
+				post.setPostParent(0L);
+				post.setGuid("http://www.bigbadcon.com/?event=".concat(eventSlug));
+				post.setPostType("event");
+				post.setCommentCount(0L);
+				post.setMenuOrder(0);
+				post.setPostContentFiltered("");
+				post.setPostExcerpt("");
+				post.setPostMimeType("");
+				post.setPostPassword("");
+				post.setToPing("");
+				post.setPinged("");
+				post.setPingStatus("closed");
+				postsService.saveAndFlush(post);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("GM");
-			postmeta.setMetaValue(saveEvent.getGm());
-			postMetaJPAService.save(postmeta);
+				EmEvents event = new EmEvents();
+				// Fields from wp post object
+				event.setEventOwner(user);
+				event.setEventName(UnicodeUtils.replaceSmartQuotes(saveEvent.getEventName()));
+				event.setPostContent(UnicodeUtils.replaceSmartQuotes(saveEvent.getEventDescription()));
+				event.setPostId(post.getId());
+				event.setEventSlug(eventSlug);
+				event.setEventStatus(0);
+				event.setEventStartDate(new java.sql.Date(startDate.getTime()));
+				event.setEventEndDate(new java.sql.Date(endDate.getTime()));
+				event.setEventStart(new Timestamp(startDateTime.getTime()));
+				event.setEventEnd(new Timestamp(endDateTime.getTime()));
+				event.setEventStartTime(startTime);
+				event.setEventEndTime(endTime);
+				event.setEventTimezone(defaultEventTimezone);
+				event.setEventRsvp((byte) 0b1);
+				event.setEventSpaces(0);
+				event.setLocationId(0L);
+				event.setEventDateCreated(now);
+				event.setEventDateModified(now);
+				event.setGroupId(0L);
+				event.setEventAllDay(0);
+				event.setEventPrivate((byte) 0b0);
+				event.setEventRsvpSpaces(0);
+				eventsJPARepositoryService.saveAndFlush(event);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("Characters");
-			postmeta.setMetaValue(saveEvent.getCharacters());
-			postMetaJPAService.save(postmeta);
+				EmTickets ticket = new EmTickets();
+				ticket.setEventId(event.getEventId());
+				ticket.setTicketPrice(BigDecimal.ZERO);
+				ticket.setTicketStart(now);
+				ticket.setTicketEnd(now);
+				ticket.setTicketMin(1);
+				ticket.setTicketMax(1);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("Players");
-			postmeta.setMetaValue(saveEvent.getPlayers());
-			postMetaJPAService.save(postmeta);
+				// Change to Players field and sanitize for non numeric values
+				// set to 0 for non-numeric values
+				int numPlayers = 0;
+				try {
+					numPlayers = Integer.parseInt(saveEvent.getPlayers());
+				} catch (Exception e) {
+					System.out.println(saveEvent.getPlayers() + " IS NOT A NUMBER");
+				}
+				ticket.setTicketSpaces(numPlayers + 1);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("Length");
-			postmeta.setMetaValue(saveEvent.getLength());
-			postMetaJPAService.save(postmeta);
+				ticket.setTicketName("Standard Ticket");
+				ticketsService.save(ticket);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("player_age");
-			postmeta.setMetaValue(saveEvent.getPlayerAge());
-			postMetaJPAService.save(postmeta);
+				bookingsService.doBooking(true, event, user, now, ticket, 1, Constants.STATUS_CODE_BOOKED);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("gm_age");
-			postmeta.setMetaValue(saveEvent.getGmAge());
-			postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("Playtest");
-			postmeta.setMetaValue(saveEvent.getPlaytest());
-			postMetaJPAService.save(postmeta);
+				Postmeta postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("System");
+				postmeta.setMetaValue(saveEvent.getSystem());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("Scheduling_Pref");
-			postmeta.setMetaValue(saveEvent.getSchedulingPref());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("GM");
+				postmeta.setMetaValue(saveEvent.getGm());
+				postMetaJPAService.save(postmeta);
+				//update usermeta displayname with getGm value
+				// add role gm to user
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("safety_tools");
-			postmeta.setMetaValue(saveEvent.getSafetyTools());
-			postMetaJPAService.save(postmeta);
+				// ROLES: if a teen at con time, add teen.  if not a teen at con time, and it's there, remove teen
+				// add GM as a role for anyone submitting a game here
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("room");
-			postmeta.setMetaValue("");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("Characters");
+				postmeta.setMetaValue(saveEvent.getCharacters());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("table");
-			postmeta.setMetaValue("");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("Players");
+				postmeta.setMetaValue(saveEvent.getPlayers());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("Length");
+				postmeta.setMetaValue(saveEvent.getLength());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("player_age");
+				postmeta.setMetaValue(saveEvent.getPlayerAge());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("gm_age");
+				postmeta.setMetaValue(saveEvent.getGmAge());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("Playtest");
+				postmeta.setMetaValue(saveEvent.getPlaytest());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("Scheduling_Pref");
+				postmeta.setMetaValue(saveEvent.getSchedulingPref());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("Min_Players");
+				postmeta.setMetaValue(saveEvent.getMinPlayers());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("safety_tools");
+				postmeta.setMetaValue(saveEvent.getSafetyTools());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("format");
+				postmeta.setMetaValue(saveEvent.getFormat());
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("run_number_of_times");
+				postmeta.setMetaValue(String.valueOf(saveEvent.getRunNumberOfTimes()));
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("room");
+				postmeta.setMetaValue("");
+				postMetaJPAService.save(postmeta);
+
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("table");
+				postmeta.setMetaValue("");
+				postMetaJPAService.save(postmeta);
 
 			/*
 			postmeta = new Postmeta();
@@ -221,288 +323,293 @@ public class EventsJPAService {
 			postMetaJPAService.save(postmeta);
 			*/
 
-			// WP/EM bookeeping from here on
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_eventId");
-			postmeta.setMetaValue(event.getEventId().toString());
-			postMetaJPAService.save(postmeta);
+				// WP/EM bookeeping from here on
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_eventId");
+				postmeta.setMetaValue(event.getEventId().toString());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_start_time");
-			postmeta.setMetaValue(Constants.DEFAULT_WP_BOOKING_START_TIME);
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_start_time");
+				postmeta.setMetaValue(defaultEventStartTime);
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_end_time");
-			postmeta.setMetaValue(Constants.DEFAULT_WP_BOOKING_END_TIME);
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_end_time");
+				postmeta.setMetaValue(defaultEventEndTime);
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_all_day");
-			postmeta.setMetaValue("0");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_all_day");
+				postmeta.setMetaValue("0");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_start_date");
-			postmeta.setMetaValue(Constants.DEFAULT_BOOKING_START_DATE);
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_start_date");
+				postmeta.setMetaValue(defaultEventStartDate);
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_end_date");
-			postmeta.setMetaValue(Constants.DEFAULT_BOOKING_END_DATE);
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_end_date");
+				postmeta.setMetaValue(defaultEventEndDate);
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_rsvp");
-			postmeta.setMetaValue("1");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_rsvp");
+				postmeta.setMetaValue("1");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_rsvp_date");
-			postmeta.setMetaValue(Constants.DEFAULT_BOOKING_RSVP_DATE);
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_rsvp_date");
+				postmeta.setMetaValue(defaultEventRsvpDate);
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_rsvp_time");
-			postmeta.setMetaValue(Constants.DEFAULT_WP_BOOKING_RSVP_TIME);
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_rsvp_time");
+				postmeta.setMetaValue(defaultEventRsvpTime);
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_rsvp_spaces");
-			postmeta.setMetaValue("0");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_rsvp_spaces");
+				postmeta.setMetaValue("0");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_spaces");
-			postmeta.setMetaValue("0");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_spaces");
+				postmeta.setMetaValue("0");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_locationId");
-			postmeta.setMetaValue("0");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_locationId");
+				postmeta.setMetaValue("0");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_recurrenceId");
-			postmeta.setMetaValue("");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_recurrenceId");
+				postmeta.setMetaValue("");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_status");
-			postmeta.setMetaValue("1");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_status");
+				postmeta.setMetaValue("1");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_private");
-			postmeta.setMetaValue("0");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_private");
+				postmeta.setMetaValue("0");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_blogId");
-			postmeta.setMetaValue(null);
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_blogId");
+				postmeta.setMetaValue(null);
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_groupId");
-			postmeta.setMetaValue("0");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_groupId");
+				postmeta.setMetaValue("0");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_recurrence");
-			postmeta.setMetaValue("0");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_recurrence");
+				postmeta.setMetaValue("0");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_recurrence_interval");
-			postmeta.setMetaValue("");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_recurrence_interval");
+				postmeta.setMetaValue("");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_recurrence_freq");
-			postmeta.setMetaValue("");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_recurrence_freq");
+				postmeta.setMetaValue("");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_recurrence_days");
-			postmeta.setMetaValue("0");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_recurrence_days");
+				postmeta.setMetaValue("0");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_recurrence_byday");
-			postmeta.setMetaValue("");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_recurrence_byday");
+				postmeta.setMetaValue("");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_recurrence_byweekno");
-			postmeta.setMetaValue("");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_recurrence_byweekno");
+				postmeta.setMetaValue("");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_recurrence_rsvp_days");
-			postmeta.setMetaValue("");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_recurrence_rsvp_days");
+				postmeta.setMetaValue("");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_start_ts");
-			postmeta.setMetaValue(String.valueOf(startDate.getTime()));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_start_ts");
+				postmeta.setMetaValue(String.valueOf(startDate.getTime()));
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_end_ts");
-			postmeta.setMetaValue(String.valueOf(endDate.getTime()));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_end_ts");
+				postmeta.setMetaValue(String.valueOf(endDate.getTime()));
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_wp_old_slug");
-			postmeta.setMetaValue(eventSlug);
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_wp_old_slug");
+				postmeta.setMetaValue(eventSlug);
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_start");
-			postmeta.setMetaValue(Constants.DEFAULT_BOOKING_START_DATE.concat(" ")
-					.concat(Constants.DEFAULT_WP_BOOKING_START_TIME));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_start");
+				postmeta.setMetaValue(defaultEventStartDate.concat(" ")
+						.concat(defaultEventStartTime));
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_end");
-			postmeta.setMetaValue(Constants.DEFAULT_BOOKING_END_DATE.concat(" ")
-					.concat(Constants.DEFAULT_WP_BOOKING_END_TIME));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_end");
+				postmeta.setMetaValue(defaultEventEndDate.concat(" ")
+						.concat(defaultEventEndTime));
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_timezone");
-			postmeta.setMetaValue("America\\/Los_Angeles");
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_timezone");
+				postmeta.setMetaValue("America\\/Los_Angeles");
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_start_local");
-			postmeta.setMetaValue(Constants.DEFAULT_BOOKING_START_DATE.concat(" ")
-					.concat(Constants.DEFAULT_WP_BOOKING_START_TIME));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_start_local");
+				postmeta.setMetaValue(defaultEventStartDate.concat(" ")
+						.concat(defaultEventStartTime));
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("_event_end_local");
-			postmeta.setMetaValue(Constants.DEFAULT_BOOKING_END_DATE.concat(" ")
-					.concat(Constants.DEFAULT_WP_BOOKING_END_TIME));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("_event_end_local");
+				postmeta.setMetaValue(defaultEventEndDate.concat(" ")
+						.concat(defaultEventEndTime));
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("user_display_name");
-			postmeta.setMetaValue(saveEvent.getUserDisplayName());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("user_display_name");
+				postmeta.setMetaValue(saveEvent.getUserDisplayName());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("other_info");
-			postmeta.setMetaValue(saveEvent.getOtherInfo());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("other_info_private");
+				postmeta.setMetaValue(saveEvent.getOtherInfo());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("request_private_room");
-			postmeta.setMetaValue(Boolean.toString(saveEvent.isRequestPrivateRoom()));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("request_private_room");
+				postmeta.setMetaValue(saveEvent.getPrivateRoom());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("request_media_room");
-			postmeta.setMetaValue(Boolean.toString(saveEvent.isRequestMediaRoom()));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("request_media_room");
+				postmeta.setMetaValue(Boolean.toString(saveEvent.isRequestMediaRoom()));
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("additional_gms");
-			postmeta.setMetaValue(saveEvent.getAdditionalGms());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("additional_gms");
+				postmeta.setMetaValue(saveEvent.getAdditionalGms());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("request_media_equipment");
-			postmeta.setMetaValue(saveEvent.getRequestMediaEquipment());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("request_media_equipment");
+				postmeta.setMetaValue(saveEvent.getRequestMediaEquipment());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("additional_requirements");
-			postmeta.setMetaValue(saveEvent.getAdditionalRequirements());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("additional_requirements");
+				postmeta.setMetaValue(saveEvent.getAdditionalRequirements());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("table_type");
-			postmeta.setMetaValue(saveEvent.getTableType());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("table_type");
+				postmeta.setMetaValue(saveEvent.getTableType());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("content_advisory");
-			postmeta.setMetaValue(Boolean.toString(saveEvent.isContentAdvisory()));
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("content_advisory");
+				postmeta.setMetaValue(Boolean.toString(saveEvent.isContentAdvisory()));
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("trigger_warnings");
-			postmeta.setMetaValue(saveEvent.getTriggerWarnings());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("trigger_warnings");
+				postmeta.setMetaValue(saveEvent.getTriggerWarnings());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("accessability_options");
-			postmeta.setMetaValue(saveEvent.getAccessabilityOptions());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("accessability_options");
+				postmeta.setMetaValue(saveEvent.getAccessabilityOptions());
+				postMetaJPAService.save(postmeta);
 
-			postmeta = new Postmeta();
-			postmeta.setPostId(post.getId());
-			postmeta.setMetaKey("event_facilitators");
-			postmeta.setMetaValue(saveEvent.getEventFacilitators());
-			postMetaJPAService.save(postmeta);
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("event_facilitators");
+				postmeta.setMetaValue(saveEvent.getEventFacilitators());
+				postMetaJPAService.save(postmeta);
 
-			for (Long metaId : saveEvent.getEventMetadataIds()) {
-				TermRelationships rel = new TermRelationships();
-				rel.setObjectId(post.getId());
-				rel.setTermTaxonomyId(metaId);
-				rel.setTermOrder(0);
-				termRelationshipsJPARepository.save(rel);
+			if (saveEvent.getEventMetadataIds() != null) {
+				for (Long metaId : saveEvent.getEventMetadataIds()) {
+					TermRelationships rel = new TermRelationships();
+					rel.setObjectId(post.getId());
+					rel.setTermTaxonomyId(metaId);
+					rel.setTermOrder(0);
+					termRelationshipsJPARepository.save(rel);
+				}
 			}
 
-			//etx.commit();
+		}
+
+		etx.commit();
+
 
 		} catch(Exception e) {
 			e.printStackTrace();
-			//etx.rollback();
+			etx.rollback();
 			throw e;
 		}
 

@@ -23,10 +23,11 @@ public class CreateEventDTO implements Serializable {
 	private String playtest;
 	private String schedulingPref;
 	private String safetyTools;
+	private String format;
 
 	private String userDisplayName;
 	private String otherInfo; 				// large string, make LOB
-	private boolean requestPrivateRoom = false;
+	private String requestPrivateRoom;
 	private boolean requestMediaRoom = false;
 	private String additionalGms; 			// large string, make LOB
 	private String requestMediaEquipment;
@@ -186,11 +187,11 @@ public class CreateEventDTO implements Serializable {
 		this.otherInfo = otherInfo;
 	}
 
-	public boolean isRequestPrivateRoom() {
+	public String getPrivateRoom() {
 		return requestPrivateRoom;
 	}
 
-	public void setRequestPrivateRoom(boolean requestPrivateRoom) {
+	public void setRequestPrivateRoom(String requestPrivateRoom) {
 		this.requestPrivateRoom = requestPrivateRoom;
 	}
 
@@ -272,5 +273,13 @@ public class CreateEventDTO implements Serializable {
 
 	public void setEventFacilitators(String eventFacilitators) {
 		this.eventFacilitators = eventFacilitators;
+	}
+
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
 	}
 }

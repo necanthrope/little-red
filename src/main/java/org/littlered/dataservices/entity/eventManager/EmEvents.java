@@ -46,6 +46,9 @@ public class EmEvents implements Serializable {
 	private Integer eventRsvpSpaces;
 	private Integer bookingExempt;
 	private Timestamp lastUpdated;
+	private Timestamp eventStart;
+	private Timestamp eventEnd;
+	private String eventTimezone;
 
 	private Set<EmBookings> bookings;
 	private Set<BbcEventCategories> categories;
@@ -473,5 +476,29 @@ public class EmEvents implements Serializable {
 
 	public void setMetadata(Set<Postmeta> categories) {
 		this.metadata = categories;
+	}
+
+	public Timestamp getEventStart() {
+		return eventStart;
+	}
+
+	public void setEventStart(Timestamp eventStart) {
+		this.eventStart = eventStart;
+	}
+
+	public Timestamp getEventEnd() {
+		return eventEnd;
+	}
+
+	public void setEventEnd(Timestamp eventEnd) {
+		this.eventEnd = eventEnd;
+	}
+
+	public String getEventTimezone() {
+		return eventTimezone;
+	}
+
+	public void setEventTimezone(String eventTimezone) {
+		this.eventTimezone = eventTimezone;
 	}
 }

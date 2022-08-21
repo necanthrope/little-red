@@ -4,6 +4,7 @@ import org.littlered.dataservices.Constants;
 import org.littlered.dataservices.dto.wordpress.CreateUsersDTO;
 import org.littlered.dataservices.entity.wordpress.Usermeta;
 import org.littlered.dataservices.entity.wordpress.Users;
+import org.littlered.dataservices.entity.wordpress.shrt.BbcUsersShort;
 import org.littlered.dataservices.exception.UniqueUserException;
 import org.littlered.dataservices.repository.wordpress.interfaces.UsermetaJPAInterface;
 import org.littlered.dataservices.repository.wordpress.interfaces.UsersJPAInterface;
@@ -19,6 +20,7 @@ import javax.transaction.Transactional;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created by Jeremy on 7/2/2017.
@@ -38,6 +40,8 @@ public class UsersJPAService {
 
 	@Autowired
 	private SecurityService securityService;
+
+	private Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@Transactional
 	public void create(CreateUsersDTO userIn) throws Exception {
@@ -150,7 +154,7 @@ public class UsersJPAService {
 		}
 
 		if(usermetas.size() < 1) {
-			throw new Exception("Multiple capabilities entries found for that user");
+			throw new Exception("Multiple capabilities entries found for user " + pUserId);
 		}
 
 		Usermeta capabilities = usermetas.get(0);
@@ -161,7 +165,8 @@ public class UsersJPAService {
 		HashMap<String, Boolean> newCaps = new HashMap<>();
 		for (String index : capList.keySet()) {
 			if(index.equals(pNewRole)) {
-				throw new Exception("User already has that role!");
+				logger.info("User " + pUserId + " already has the role " + pNewRole + "!");
+				continue;
 			}
 			newCaps.put(index, true);
 		}
@@ -199,4 +204,43 @@ public class UsersJPAService {
 		List<Usermeta> deleteMetas = usermetaJPAInterface.findUsermetaByUserIdAndMetaKey(user.getId(), key);
 		usermetaJPAInterface.delete(deleteMetas);
 	}
+
+	public List<String> removeUserRole(Long pUserId, String pRemoveRole) throws Exception {
+		List<Usermeta> usermetas =
+				usermetaJPAInterface.findUsermetaByUserIdAndMetaKey(pUserId, "wp_tuiny5_capabilities");
+
+		if(usermetas.size() < 1) {
+			throw new Exception("Multiple capabilities entries found for user " + pUserId);
+		}
+
+		Usermeta capabilities = usermetas.get(0);
+
+		LinkedHashMap<String, Boolean> capList =
+				(LinkedHashMap<String, Boolean>) new SerializedPhpParser(capabilities.getMetaValue()).parse();
+
+		HashMap<String, Boolean> newCaps = new HashMap<>();
+		for (String index : capList.keySet()) {
+			if(!index.equals(pRemoveRole)) {
+				newCaps.put(index, true);
+			}
+		}
+
+		Serializer serializer = new SerializerBuilder()
+				.registerBuiltinAdapters()
+				.setCharset(Charset.forName("ISO-8859-1"))
+				.build();
+		capabilities.setMetaValue(serializer.serialize(newCaps));
+
+		usermetaJPAInterface.save(capabilities);
+
+		return new ArrayList<>(newCaps.keySet());
+	}
+
+	@Transactional
+	public void updateUserDisplayName(String displayName, BbcUsersShort userShort) throws Exception {
+		Users user = usersRepository.findOne(userShort.getId());
+		user.setDisplayName(displayName);
+		usersRepository.save(user);
+	}
+
 }

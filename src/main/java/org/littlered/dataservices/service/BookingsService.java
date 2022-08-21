@@ -279,6 +279,25 @@ public class BookingsService {
 			bookingMessage = Constants.MESSAGE_OVERBOOKED;
 		}
 
+		doBooking(isGm, event, bbcUsersShort, now, ticket, bookingSpaces, bookingStatus);
+
+
+		//TODO send rejection mail for overbookings
+		try {
+			if (bookingStatus.equals(Constants.STATUS_CODE_BOOKED)) {
+				emailService.sendEmail(createConfirmedPlayerEmail(user, event));
+				emailService.sendEmail(createConfirmedHostEmail(user, event, ticket, bookingsList.size()));
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		bookingsService.stateTable.put(uuid, bookingMessage);
+
+	}
+
+	public void doBooking(Boolean isGm, EmEvents event, BbcUsersShort bbcUsersShort, Timestamp now, EmTickets ticket,
+						  Integer bookingSpaces, Integer bookingStatus) {
 		EmBookings booking = new EmBookings();
 		booking.setEventId(event);
 		booking.setUser(bbcUsersShort);
@@ -299,20 +318,6 @@ public class BookingsService {
 		ticketBooking.setTicketBookingSpaces(bookingSpaces);
 		ticketBooking.setTicketBookingPrice(new BigDecimal(0));
 		ticketsBookingsDAO.save(ticketBooking);
-
-
-		//TODO send rejection mail for overbookings
-		try {
-			if (bookingStatus.equals(Constants.STATUS_CODE_BOOKED)) {
-				emailService.sendEmail(createConfirmedPlayerEmail(user, event));
-				emailService.sendEmail(createConfirmedHostEmail(user, event, ticket, bookingsList.size()));
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		bookingsService.stateTable.put(uuid, bookingMessage);
-
 	}
 
 	public static Date getDate(Date date, Time time) {
