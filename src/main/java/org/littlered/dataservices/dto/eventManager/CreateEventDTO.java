@@ -38,7 +38,9 @@ public class CreateEventDTO implements Serializable {
 	private String accessabilityOptions;
 	private String eventFacilitators;
 
-	private Integer runNumberOfTimes = 1; 	// FIGURE OUT THE LOGIC FOR THIS
+	private Integer runNumberOfTimes = 1;
+
+	private String eventTags;
 
 
 
@@ -281,5 +283,13 @@ public class CreateEventDTO implements Serializable {
 
 	public void setFormat(String format) {
 		this.format = format;
+	}
+
+	public String getEventTags() {
+		return eventTags;
+	}
+
+	public void setEventTags(String eventTags) {
+		this.eventTags = eventTags;
 	}
 }

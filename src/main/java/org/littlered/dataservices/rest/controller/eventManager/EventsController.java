@@ -1,5 +1,7 @@
 package org.littlered.dataservices.rest.controller.eventManager;
 
+import org.littlered.dataservices.rest.params.UploadFileResponse;
+import org.littlered.dataservices.service.FileStorageService;
 import org.littlered.dataservices.Constants;
 import org.littlered.dataservices.dto.littlered.EventMetadataDTO;
 import org.littlered.dataservices.dto.eventManager.CreateEventDTO;
@@ -17,9 +19,13 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -41,6 +47,15 @@ public class EventsController {
 
 	@Autowired
 	private EventsJPAService eventsJPAService;
+
+	@Autowired
+	private FileStorageService fileStorageService;
+
+	@Value("${file.download.baseUri}")
+	private String fileDownloadBaseUri;
+
+	@Value("${file.download.path}")
+	private String fileDownloadPath;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -219,18 +234,20 @@ public class EventsController {
 		return favoriteEvent;
 	}
 
-	@ApiOperation(value = "Create an event for the current year.")
-	@RequestMapping(value = "/create", method = RequestMethod.PUT)
-	public void createEvent(@RequestBody CreateEventDTO eventCreate, HttpServletResponse response) throws Exception {
+	@ApiOperation(value = "Create an event for the current year.", response = String.class)
+	@RequestMapping(value = "/create", method = RequestMethod.PUT, consumes = "application/json", produces = "text/plain")
+	public String createEvent(@RequestBody CreateEventDTO eventCreate, HttpServletResponse response) throws Exception {
 
 		Long userId = usersService.getCurrentUser().getId();
 		BbcUsersShort user = usersService.findShortUser(userId);
 
 		try {
-			eventsJPAService.saveEvents(eventCreate, user);
+			Long eventId = eventsJPAService.saveEvents(eventCreate, user);
+			return eventId.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return null;
 		}
 
 	}
@@ -240,6 +257,33 @@ public class EventsController {
 	public Iterable<EventMetadataDTO> findMetaTypes() throws Exception {
 		Iterable<EventMetadataDTO> eventMetas = eventsJPAService.getEventMetadata();
 		return eventMetas;
+	}
+
+	@ApiOperation(value = "Upload an image file for an event.", response = Boolean.class)
+	@RequestMapping(value = "/image", method = RequestMethod.POST, produces = "application/json")
+	public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("eventId") String eventId, HttpServletResponse response) {
+		String fileName;
+		try {
+			fileName = fileStorageService.storeFile(file, eventId);
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			e.printStackTrace();
+			return null;
+		}
+
+		String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath().path(File.separator)
+				.path(fileDownloadPath.concat(File.separator))
+				.path(fileName)
+				.toUriString();
+
+		if (fileDownloadBaseUri != null) {
+			fileDownloadUri = fileDownloadBaseUri.concat(File.separator)
+					.concat(fileDownloadPath).concat(File.separator)
+					.concat(fileName);
+		}
+
+		return new UploadFileResponse(fileName, fileDownloadUri,
+				file.getContentType(), file.getSize());
 	}
 
 }

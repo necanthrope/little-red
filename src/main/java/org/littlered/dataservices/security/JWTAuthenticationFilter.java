@@ -3,6 +3,7 @@ package org.littlered.dataservices.security;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,9 @@ public class JWTAuthenticationFilter extends GenericFilterBean {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@Autowired
+	private JWTUtil jwtUtil;
+
 	@Override
 	public void doFilter(ServletRequest request,
 						 ServletResponse response,
@@ -36,7 +40,7 @@ public class JWTAuthenticationFilter extends GenericFilterBean {
 			final String authorization = ((HttpServletRequest)request).getHeader("Authorization");
 			if (hasText(authorization)){
 				Authentication authentication = TokenAuthenticationService
-						.getAuthentication((HttpServletRequest) request);
+						.getAuthentication((HttpServletRequest) request, jwtUtil);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 			filterChain.doFilter(request, response);

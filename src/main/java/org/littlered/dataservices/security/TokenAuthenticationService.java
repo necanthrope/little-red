@@ -17,26 +17,24 @@ import static java.util.Collections.emptyList;
  */
 public class TokenAuthenticationService {
 
-	static final long EXPIRATIONTIME = 864_000_000; // 10 days
-	static final String SECRET = "upu-f58Wj?udWPdtWc4tGAc%uYR2GXT+bG@%#Paw3-&4d2pcg3XDM8GcDK%#&Ndn";
 	static final String TOKEN_PREFIX = "Bearer";
 	static final String HEADER_STRING = "Authorization";
 
-	static void addAuthentication(HttpServletResponse res, String username) {
+	static void addAuthentication(HttpServletResponse res, String username, JWTUtil jwtUtil) {
 		String JWT = Jwts.builder()
 				.setSubject(username)
-				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
-				.signWith(SignatureAlgorithm.HS512, SECRET)
+				.setExpiration(new Date(System.currentTimeMillis() + jwtUtil.getJwtExpirationInMs()))
+				.signWith(SignatureAlgorithm.HS512, jwtUtil.getSecret())
 				.compact();
 		res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + JWT);
 	}
 
-	static Authentication getAuthentication(HttpServletRequest request) {
+	static Authentication getAuthentication(HttpServletRequest request, JWTUtil jwtUtil) {
 		String token = request.getHeader(HEADER_STRING);
 		if (token != null) {
 			// parse the token.
 			String user = Jwts.parser()
-					.setSigningKey(SECRET)
+					.setSigningKey(jwtUtil.getSecret())
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
 					.getBody()
 					.getSubject();

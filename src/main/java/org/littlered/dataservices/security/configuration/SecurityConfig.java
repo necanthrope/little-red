@@ -3,6 +3,7 @@ package org.littlered.dataservices.security.configuration;
 import org.littlered.dataservices.security.ApiKeyFilter;
 import org.littlered.dataservices.security.JWTAuthenticationFilter;
 import org.littlered.dataservices.security.JWTLoginFilter;
+import org.littlered.dataservices.security.JWTUtil;
 import org.littlered.dataservices.security.password.PhpPasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private JWTAuthenticationFilter jwtAuthenticationFilter;
 
+	@Autowired
+	private JWTUtil jwtUtil;
+
 	@Value("${tls.active}")
 	private String tlsActive;
 
@@ -63,7 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.anyRequest().authenticated()
 				.and()
 				// We filter the api/login requests
-				.addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
+				.addFilterBefore(new JWTLoginFilter("/login", authenticationManager(), jwtUtil),
 						UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(jwtAuthenticationFilter,
 						JWTLoginFilter.class)

@@ -36,9 +36,17 @@ public class JWTUtil {
 		this.secret = secret;
 	}
 
+	public String getSecret() {
+		return this.secret;
+	}
+
 	@Value("${jwt.expirationDateInMs}")
 	public void setJwtExpirationInMs(int jwtExpirationInMs) {
 		this.jwtExpirationInMs = jwtExpirationInMs;
+	}
+
+	public int getJwtExpirationInMs() {
+		return this.jwtExpirationInMs;
 	}
 
 	@Value("${jwt.refreshExpirationDateInMs}")

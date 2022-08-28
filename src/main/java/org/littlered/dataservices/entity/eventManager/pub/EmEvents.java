@@ -263,6 +263,7 @@ public class EmEvents implements Serializable {
 			"'room', " +
 			"'table', " +
 			"'exempt', " +
+			"'event_image', " +
 			"'safety_tools') " +
 			" or meta_key like '%\\_shift'")
 	@OrderBy(value = "metaId")

@@ -81,7 +81,7 @@ public class EventsJPAService {
 	private EntityManagerFactory emf;
 
 	@Transactional
-	public void saveEvents(CreateEventDTO saveEvent, BbcUsersShort user) throws Exception {
+	public Long saveEvents(CreateEventDTO saveEvent, BbcUsersShort user) throws Exception {
 
 		String defaultEventDateFormat = "yyyy-MM-dd";
 
@@ -140,6 +140,7 @@ public class EventsJPAService {
 		}
 
 		try {
+			Long eventId = 0l;
 			for (int i = 0; i < saveEvent.getRunNumberOfTimes(); i++) {
 
 				String eventSlug = eventsSlugService.slugify(saveEvent.getEventName());
@@ -195,6 +196,8 @@ public class EventsJPAService {
 				event.setEventPrivate((byte) 0b0);
 				event.setEventRsvpSpaces(0);
 				eventsJPARepositoryService.saveAndFlush(event);
+
+				eventId = event.getEventId();
 
 				EmTickets ticket = new EmTickets();
 				ticket.setEventId(event.getEventId());
@@ -592,6 +595,12 @@ public class EventsJPAService {
 				postmeta.setMetaValue(saveEvent.getEventFacilitators());
 				postMetaJPAService.save(postmeta);
 
+				postmeta = new Postmeta();
+				postmeta.setPostId(post.getId());
+				postmeta.setMetaKey("event_tags");
+				postmeta.setMetaValue(saveEvent.getEventTags());
+				postMetaJPAService.save(postmeta);
+
 			if (saveEvent.getEventMetadataIds() != null) {
 				for (Long metaId : saveEvent.getEventMetadataIds()) {
 					TermRelationships rel = new TermRelationships();
@@ -605,6 +614,7 @@ public class EventsJPAService {
 		}
 
 		etx.commit();
+		return eventId;
 
 
 		} catch(Exception e) {

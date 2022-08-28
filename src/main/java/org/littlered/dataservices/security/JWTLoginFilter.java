@@ -1,12 +1,15 @@
 package org.littlered.dataservices.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,9 +23,12 @@ import java.util.Collections;
  */
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
-	public JWTLoginFilter(String url, AuthenticationManager authManager) {
+	private JWTUtil jwtUtil;
+
+	public JWTLoginFilter(String url, AuthenticationManager authManager, JWTUtil jwtUtil) {
 		super(new AntPathRequestMatcher(url));
 		setAuthenticationManager(authManager);
+		this.jwtUtil = jwtUtil;
 	}
 
 	@Override
@@ -46,6 +52,6 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 			HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
 		TokenAuthenticationService
-				.addAuthentication(res, auth.getName());
+				.addAuthentication(res, auth.getName(), jwtUtil);
 	}
 }
