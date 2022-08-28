@@ -29,9 +29,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Jeremy on 4/2/2017.
@@ -99,19 +97,47 @@ public class EventsJPAService {
 		Timestamp now = Timestamp.from(Instant.now());
 
 		SimpleDateFormat dateFormat = new SimpleDateFormat(defaultEventDateFormat);
-		Date startDate = dateFormat.parse(defaultEventStartDate);
-		Date endDate = dateFormat.parse(defaultEventEndDate);
-
 		SimpleDateFormat timeFormat = new SimpleDateFormat(defaultEventTimeFormat);
-		Time startTime = new Time(timeFormat.parse(defaultEventStartTime).getTime());
-		Time endTime = new Time(timeFormat.parse(defaultEventEndTime).getTime());
-
 		String dateTimeFormatString = defaultEventDateFormat.concat(" ").concat(defaultEventTimeFormat);
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
-		Date startDateTime = new Time(dateTimeFormat.parse(defaultEventStartDate
-				.concat(" ").concat(defaultEventStartTime)).getTime());
-		Date endDateTime = new Time(dateTimeFormat.parse(defaultEventEndDate
-				.concat(" ").concat(defaultEventEndTime)).getTime());
+
+		Date startDate;
+		Date endDate;
+		Time startTime;
+		Time endTime;
+		Date startDateTime;
+		Date endDateTime;
+
+		if (saveEvent.getEventStartDate() == null && saveEvent.getEventStartTime() == null) {
+			startDate = dateFormat.parse(defaultEventStartDate);
+			endDate = dateFormat.parse(defaultEventEndDate);
+
+			startTime = new Time(timeFormat.parse(defaultEventStartTime).getTime());
+			endTime = new Time(timeFormat.parse(defaultEventEndTime).getTime());
+
+			startDateTime = new Time(dateTimeFormat.parse(defaultEventStartDate
+					.concat(" ").concat(defaultEventStartTime)).getTime());
+			endDateTime = new Time(dateTimeFormat.parse(defaultEventEndDate
+					.concat(" ").concat(defaultEventEndTime)).getTime());
+		} else {
+			startDate = dateFormat.parse(saveEvent.getEventStartDate());
+
+			startTime = new Time(timeFormat.parse(saveEvent.getEventStartTime()).getTime());
+
+			String startDateString = saveEvent.getEventStartDate().concat(" " )
+					.concat(saveEvent.getEventStartTime());
+			startDateTime = new Date(dateTimeFormat.parse(startDateString).getTime());
+
+			// Calculate end dates and times from start date + event duration
+			Calendar endTimeCalendar = Calendar.getInstance();
+			endTimeCalendar.setTimeZone(TimeZone.getTimeZone(defaultEventTimezone));
+			endTimeCalendar.setTime(startDateTime);
+			endTimeCalendar.add(Calendar.HOUR_OF_DAY, Integer.parseInt(saveEvent.getLength()));
+
+			endDate = dateFormat.parse(dateFormat.format(endTimeCalendar.getTime()));
+			endTime = new Time(endTimeCalendar.getTimeInMillis());
+			endDateTime = endTimeCalendar.getTime();
+		}
 
 
 		if(saveEvent.getRunNumberOfTimes() > 4) {

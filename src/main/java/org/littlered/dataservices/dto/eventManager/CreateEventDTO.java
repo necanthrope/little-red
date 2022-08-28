@@ -22,6 +22,8 @@ public class CreateEventDTO implements Serializable {
 	private String gmAge;
 	private String playtest;
 	private String schedulingPref;
+	private String eventStartDate;
+	private String eventStartTime;
 	private String safetyTools;
 	private String format;
 
@@ -292,4 +294,21 @@ public class CreateEventDTO implements Serializable {
 	public void setEventTags(String eventTags) {
 		this.eventTags = eventTags;
 	}
+
+	public String getEventStartDate() {
+		return eventStartDate;
+	}
+
+	public void setEventStartDate(String eventStartDate) {
+		this.eventStartDate = eventStartDate;
+	}
+
+	public String getEventStartTime() {
+		return eventStartTime;
+	}
+
+	public void setEventStartTime(String eventStartTime) {
+		this.eventStartTime = eventStartTime;
+	}
+
 }
