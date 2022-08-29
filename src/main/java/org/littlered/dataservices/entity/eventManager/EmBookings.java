@@ -24,7 +24,7 @@ public class EmBookings implements Serializable {
 	private BigDecimal bookingTaxRate;
 	private BigDecimal bookingTaxes;
 	private Timestamp lastUpdated;
-	private String bookingUuid = UUID.randomUUID().toString();
+	 private String bookingUuid = "";
 
 	private BbcUsersShort user;
 	private EmEvents eventId;
