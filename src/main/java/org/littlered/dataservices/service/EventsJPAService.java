@@ -75,6 +75,9 @@ public class EventsJPAService {
 	@Value("${default.event.time}")
 	private String defaultEventTime;
 
+	@Value("${site.baseUri}")
+	private String siteBaseUri;
+
 	@Autowired
 	private EntityManagerFactory emf;
 
@@ -184,7 +187,7 @@ public class EventsJPAService {
 				post.setPostModified(now);
 				post.setPostModifiedGmt(now);
 				post.setPostParent(0L);
-				post.setGuid("http://www.bigbadcon.com/?event=".concat(eventSlug));
+				post.setGuid(siteBaseUri.concat("/").concat(eventSlug)); // investigate if this is used
 				post.setPostType("event");
 				post.setCommentCount(0L);
 				post.setMenuOrder(0);
