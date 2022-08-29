@@ -14,6 +14,7 @@ import com.marcospassos.phpserializer.Serializer;
 import com.marcospassos.phpserializer.SerializerBuilder;
 import org.openapitools.client.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -40,6 +41,9 @@ public class UsersJPAService {
 
 	@Autowired
 	private SecurityService securityService;
+
+	@Value("${db.table_prefix}")
+	private String tablePrefix;
 
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -91,7 +95,7 @@ public class UsersJPAService {
 
 		usermeta = new Usermeta();
 		usermeta.setUserId(user.getId());
-		usermeta.setMetaKey("user_role");
+		usermeta.setMetaKey(tablePrefix.concat("capabilities"));
 		usermeta.setMetaValue("a:1:{s:12:\"notattending\";b:1;}");
 		usermetaJPAInterface.save(usermeta);
 
@@ -147,13 +151,13 @@ public class UsersJPAService {
 	public List<String> addUserRole(Long pUserId, String pNewRole) throws Exception {
 
 		List<Usermeta> usermetas =
-				usermetaJPAInterface.findUsermetaByUserIdAndMetaKey(pUserId, "user_role");
+				usermetaJPAInterface.findUsermetaByUserIdAndMetaKey(pUserId, tablePrefix.concat("capabilities"));
 
-		if(usermetas.size() > 1) {
+		if(usermetas.size() < 1) {
 			throw new Exception("Either no matching user, or no no capabilities found");
 		}
 
-		if(usermetas.size() < 1) {
+		if(usermetas.size() > 1) {
 			throw new Exception("Multiple capabilities entries found for user " + pUserId);
 		}
 
@@ -207,9 +211,9 @@ public class UsersJPAService {
 
 	public List<String> removeUserRole(Long pUserId, String pRemoveRole) throws Exception {
 		List<Usermeta> usermetas =
-				usermetaJPAInterface.findUsermetaByUserIdAndMetaKey(pUserId, "wp_tuiny5_capabilities");
+				usermetaJPAInterface.findUsermetaByUserIdAndMetaKey(pUserId, tablePrefix.concat("capabilities"));
 
-		if(usermetas.size() < 1) {
+		if(usermetas.size() > 1) {
 			throw new Exception("Multiple capabilities entries found for user " + pUserId);
 		}
 

@@ -7,6 +7,7 @@ import org.littlered.dataservices.repository.wordpress.interfaces.UsersRepositor
 import org.littlered.dataservices.security.password.PhpPasswordEncoder;
 import org.littlered.dataservices.util.php.parser.SerializedPhpParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -35,6 +36,9 @@ public class SecurityService {
 	@Autowired
 	private EmailService emailService;
 
+	@Value("${db.table_prefix}")
+	private String tablePrefix;
+
 	public void checkRolesForCurrentUser(List<String> authorizedRoles) throws Exception {
 		Users user = usersService.getCurrentUser();
 		checkRolesForUser(user, authorizedRoles);
@@ -42,7 +46,7 @@ public class SecurityService {
 
 	public void checkRolesForUser(Users user, List<String> authorizedRoles) throws Exception {
 		for(Usermeta userMeta : user.getUserMetas()) {
-			if (userMeta.getMetaKey().equals("user_role")) {
+			if (userMeta.getMetaKey().equals(tablePrefix.concat("capabilities"))) {
 				try {
 					System.out.println(userMeta.getMetaValue());
 					HashMap<String, String> roles = (HashMap<String, String>) new SerializedPhpParser(userMeta.getMetaValue()).parse();
