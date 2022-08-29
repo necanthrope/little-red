@@ -25,7 +25,7 @@ public interface EventsJPARepositoryInterface extends JpaRepository<EmEvents, Lo
 	@Query(value =
 			"select em.eventName, count(em.eventSlug), max(em.eventSlug) " +
 					//" from EmEvents em " +
-					"from #{#entityName} em " + // This works in native queries too, use to replace wp_tuiny5_ prefix
+					"from #{#entityName} em " + // This works in native queries too, use to replace the db prefix
 					//"where event_slug REGEXP '.+-[0-9]{1,2}$'"
 					"where em.eventSlug like concat(:slug, '%') " +
 					"group by em.eventName")
