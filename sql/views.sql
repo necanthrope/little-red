@@ -1,5 +1,5 @@
 -- Put table prefix from application.properties here (db.table_prefix)
-SET @table_prefix:='';
+SET @table_prefix:='wp_goplaynw_';
 
 SET @sql:=CONCAT(
 'CREATE OR REPLACE ',

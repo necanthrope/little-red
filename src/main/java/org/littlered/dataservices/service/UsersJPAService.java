@@ -12,7 +12,6 @@ import org.littlered.dataservices.security.password.PhpPasswordEncoder;
 import org.littlered.dataservices.util.php.parser.SerializedPhpParser;
 import com.marcospassos.phpserializer.Serializer;
 import com.marcospassos.phpserializer.SerializerBuilder;
-import org.openapitools.client.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -44,6 +43,12 @@ public class UsersJPAService {
 
 	@Value("${db.table_prefix}")
 	private String tablePrefix;
+
+	@Value("${site.name}")
+	private String siteName;
+
+	@Value("${site.baseUri}")
+	private String siteBaseUri;
 
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -121,9 +126,9 @@ public class UsersJPAService {
 		usersRepository.save(ourHero);
 
 		HashMap<String, String> message = new HashMap<>();
-		message.put("subject", "Big Bad Con password reset request");
+		message.put("subject", siteName.concat(" password reset request"));
 		message.put("to", ourHero.getUserEmail());
-		message.put("body", "http://bigbadcon.com/blahblah/reset/?".concat(token));
+		message.put("body", siteBaseUri.concat("/reset/?".concat(token)));
 		emailService.sendEmail(message);
 
 	}
