@@ -24,7 +24,7 @@ public class EmBookings implements Serializable {
 	private BigDecimal bookingTaxRate;
 	private BigDecimal bookingTaxes;
 	private Timestamp lastUpdated;
-	 private String bookingUuid = "";
+	private String bookingUuid = "";
 
 	private BbcUsersShort user;
 	private EmEvents eventId;
@@ -191,7 +191,7 @@ public class EmBookings implements Serializable {
 		this.lastUpdated = lastUpdated;
 	}
 
-	@Column(name = "booking_uuid", columnDefinition="char" )
+	@Column(name = "booking_uuid", columnDefinition="char")
 	public String getBookingUuid() {
 		return bookingUuid;
 	}
