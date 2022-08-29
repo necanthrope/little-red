@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 /**
  * Created by Jeremy on 3/19/2017.
@@ -23,6 +24,7 @@ public class EmBookings implements Serializable {
 	private BigDecimal bookingTaxRate;
 	private BigDecimal bookingTaxes;
 	private Timestamp lastUpdated;
+	private String bookingUuid = UUID.randomUUID().toString();
 
 	private BbcUsersShort user;
 	private EmEvents eventId;
@@ -187,5 +189,14 @@ public class EmBookings implements Serializable {
 
 	public void setLastUpdated(Timestamp lastUpdated) {
 		this.lastUpdated = lastUpdated;
+	}
+
+	@Column(name = "booking_uuid", columnDefinition="char" )
+	public String getBookingUuid() {
+		return bookingUuid;
+	}
+
+	public void setBookingUuid(String bookingUuid) {
+		this.bookingUuid = bookingUuid;
 	}
 }
