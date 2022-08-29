@@ -29,8 +29,8 @@ public class SwaggerConfig {
 	}
 	private ApiInfo metaData() {
 		ApiInfo apiInfo = new ApiInfo(
-				"Little Red data service REST API",
-				"REST API for Little Red, a registration system for small tabletop game conventions.",
+				"Go Play North West - Little Red data service REST API",
+				"GPNW's REST API for Little Red, a registration system for small tabletop game conventions.",
 				"1.0",
 				"Terms of service",
 				new Contact("Jeremy Tidwell", "https://github.com/necanthrope/little-red", "necanthrope@gmail.com"),
