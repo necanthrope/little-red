@@ -110,7 +110,7 @@ public class UsersJPAService {
 	public void requestPasswordReset(String pEmailAddress) throws Exception {
 
 		List<Users> emailCheck = usersRepository.findUsersByUserEmail(pEmailAddress);
-		if (emailCheck == null || emailCheck.size() > 0) {
+		if (emailCheck == null || emailCheck.size() < 0) {
 			throw new UniqueUserException("That email address is invalid.");
 		}
 

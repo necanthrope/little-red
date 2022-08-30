@@ -49,9 +49,16 @@ public class EmailService {
 		message.setTo(email.get("to"));
 		message.setSubject(email.get("subject"));
 		message.setText(email.get("body"));
+		message.setFrom("info@goplaynw.org");
+		message.setReplyTo("info@goplaynw.org");
 
 		logger.info("Sending to " + message.getTo().toString() + " regarding " + message.getSubject());
-		javaMailSender.send(message);
+		try {
+			javaMailSender.send(message);
+		} catch (Exception e ){
+			e.printStackTrace();
+			throw e;
+		}
 		logger.info("Done sending email.");
 
 	}
