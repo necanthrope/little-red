@@ -64,7 +64,7 @@ public class EmailService {
 			message.setTo(email.get("to"));
 			message.setSubject(email.get("subject"));
 			message.setText(email.get("body"));
-			message.setFrom("info@goplaynw.org");
+			message.setFrom("info@example.com");
 
 			logger.info("Sending to " + email.get("to") + " regarding " + email.get("subject"));
 			impl.send(mimeMessage);
