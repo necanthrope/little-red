@@ -468,6 +468,9 @@ public class EmEvents implements Serializable {
 			"'table', " +
 			"'exempt', " +
 			"'event_image', " +
+			"'trigger_warnings', " +
+			"'event_tags', " +
+			"'format', " +
 			"'safety_tools') " +
 			" or meta_key like '%\\_shift'")
 	@OrderBy(value = "metaId")

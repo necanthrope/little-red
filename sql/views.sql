@@ -3,7 +3,7 @@ SET @table_prefix:='wp_goplaynw_';
 
 SET @sql:=CONCAT(
 'CREATE OR REPLACE ',
-'VIEW bbc_booking_count_view_t AS select ',
+'VIEW bbc_booking_count_view AS select ',
 '    b.booking_id AS booking_id, ',
 '    b.event_id AS event_id, ',
 '    b.person_id AS person_id, ',
@@ -67,7 +67,7 @@ DEALLOCATE PREPARE stmt;
 
 SET @sql := CONCAT(
 'CREATE OR REPLACE ',
-'VIEW bbc_event_categories_t AS select ',
+'VIEW bbc_event_categories AS select ',
 '    p.ID AS post_id, ',
 '    tax.taxonomy AS taxonomy, ',
 '    t.term_id AS term_id, ',
@@ -80,7 +80,7 @@ SET @sql := CONCAT(
 'left join ' , @table_prefix , 'term_relationships rel on ',
 '    ((rel.object_id = p.ID))) ',
 'left join ' , @table_prefix , 'term_taxonomy tax on ',
-'    (((tax.term_taxonomy_id = rel.term_taxonomy_id) and (tax.taxonomy = ''favoriteEvent-categories'')))) ',
+'    (((tax.term_taxonomy_id = rel.term_taxonomy_id) and (tax.taxonomy = ''event-categories'')))) ',
 'left join ' , @table_prefix , 'terms t on ',
 '    ((t.term_id = tax.term_id))) ',
 'left join ' , @table_prefix , 'em_events e on ',
@@ -97,7 +97,7 @@ DEALLOCATE PREPARE stmt;
 
 SET @sql := CONCAT(
 'CREATE OR REPLACE ',
-'VIEW bbc_event_view_t AS select ',
+'VIEW bbc_event_view AS select ',
 '    u.ID AS ID, ',
 '    u.display_name AS display_name, ',
 '    u.user_email AS user_email, ',
@@ -126,7 +126,7 @@ DEALLOCATE PREPARE stmt;
 
 
 SET @sql := CONCAT(
-'CREATE VIEW bbc_users_short AS ',
+'CREATE OR REPLACE VIEW bbc_users_short AS ',
 'select ID, display_name from ', @table_prefix, 'users;' );
 
 PREPARE stmt from @sql;

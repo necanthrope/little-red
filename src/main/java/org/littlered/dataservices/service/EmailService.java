@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.util.HashMap;
 
@@ -27,8 +30,14 @@ public class EmailService {
 	@Value("${email.useSes}")
 	private String useSes;
 
-	@Value("${email.sender}")
+	@Value("${spring.mail.from}")
 	private String sender;
+
+	@Value("${spring.mail.host}")
+	private String host;
+
+	@Value("${spring.mail.port}")
+	private String port;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,14 +53,25 @@ public class EmailService {
 			return;
 		}
 
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setFrom(sender);
-		message.setTo(email.get("to"));
-		message.setSubject(email.get("subject"));
-		message.setText(email.get("body"));
+		JavaMailSenderImpl impl = new JavaMailSenderImpl();
+		impl.setHost(host);
+		impl.setPort(Integer.parseInt(port));
 
-		logger.info("Sending to " + message.getTo().toString() + " regarding " + message.getSubject());
-		javaMailSender.send(message);
+		MimeMessage mimeMessage = impl.createMimeMessage();
+		try {
+			MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+			message.setFrom(sender);
+			message.setTo(email.get("to"));
+			message.setSubject(email.get("subject"));
+			message.setText(email.get("body"));
+			message.setFrom("info@goplaynw.org");
+
+			logger.info("Sending to " + email.get("to") + " regarding " + email.get("subject"));
+			impl.send(mimeMessage);
+		} catch (Exception e ){
+			e.printStackTrace();
+			throw e;
+		}
 		logger.info("Done sending email.");
 
 	}
