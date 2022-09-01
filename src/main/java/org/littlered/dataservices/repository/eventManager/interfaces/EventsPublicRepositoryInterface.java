@@ -2,6 +2,7 @@ package org.littlered.dataservices.repository.eventManager.interfaces;
 
 import org.littlered.dataservices.entity.eventManager.pub.EmEvents;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -18,10 +19,13 @@ import java.util.List;
 public interface EventsPublicRepositoryInterface extends PagingAndSortingRepository<EmEvents, Long> {
 
 	// Public events list (no login) queries
-	@Query(value = "SELECT DISTINCT c.eventId from BbcEventCategories c where c.slug not in ( " +
-			"'%\\_shift'" +
-			") " +
-			"and FUNCTION('YEAR', c.eventId.eventStartDate) = ?1")
+//	@Query(value = "SELECT DISTINCT c.eventId from BbcEventCategories c where c.slug not in ( " +
+//			"'%\\_shift'" +
+//			") " +
+//			"and FUNCTION('YEAR', c.eventId.eventStartDate) = ?1")
+	@Query(value = "select distinct e from EmEvents e where not exists (select 1 from Postmeta pm " +
+			" where pm.postId = e.postId and pm.metaKey = 'format' and pm.metaValue like '% Shift')" +
+			" and FUNCTION('YEAR', e.eventStartDate) = ?1")
 	List<EmEvents> findPublicByYear(Integer year);
 
 	@Query(value = "SELECT e from EmEvents e WHERE FUNCTION('YEAR', e.eventStartDate) = ?1 and e.eventSlug not like 'verify%badge%'")

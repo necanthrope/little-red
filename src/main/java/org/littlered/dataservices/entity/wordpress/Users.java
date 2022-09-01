@@ -135,7 +135,7 @@ public class Users {
 			"'twitter', " +
 			"'parentname', " +
 			"'parentemail', " +
-			"'user_role')")
+			"'wp_goplaynw_capabilities')")
 	@OrderBy(value = "metaKey")
 	public List<Usermeta> getUserMetas() {
 		return userMetas;

@@ -14,6 +14,8 @@ public class EmTicketsBookings {
 	private Integer ticketBookingSpaces;
 	private BigDecimal ticketBookingPrice;
 
+	private String ticketUuid = "";
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "ticket_booking_id")
@@ -90,5 +92,14 @@ public class EmTicketsBookings {
 		result = 31 * result + ticketBookingSpaces;
 		result = 31 * result + (ticketBookingPrice != null ? ticketBookingPrice.hashCode() : 0);
 		return result;
+	}
+
+	@Column(name = "ticket_uuid", columnDefinition="char")
+	public String getTicketUuid() {
+		return ticketUuid;
+	}
+
+	public void setTicketUuid(String ticketUuid) {
+		this.ticketUuid = ticketUuid;
 	}
 }
